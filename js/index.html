@@ -1,0 +1,240 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Simple Express App</title>
+    <script src="./hyperIdSdk.js"></script>
+</head>
+<body>
+    <h1>Welcome to HyperId Web App, ok friend?</h1>
+
+    <form onclick="loginWeb2()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Web 2.0 Sign in 
+        </button>
+    </form>
+    <br>
+    <form onclick="loginWeb3()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Web 3.0 Sign in 
+        </button>
+    </form>
+    <br>
+    <form onclick="userInfo()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            User Info
+        </button>
+    </form>
+    <br>
+    <form onclick="checkSession()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Check Session
+        </button>
+    </form>
+    <br>
+    <form onclick="logout()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Logout
+        </button>
+    </form>
+
+    <!-- MFA ================================================================================================== -->
+    <h2 style="color:chocolate; margin-left: 10px;">
+        Multi Factor Authorization (MFA)
+    </h2>
+    <br>
+    <form onclick="mfaCheckAvailability()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            MFA Availability Check
+        </button>
+    </form>
+    <br>
+
+    <form onclick="mfaStartTransaction()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            MFA Transcation Start
+        </button>
+    </form>
+    <br>
+
+    <form onclick="mfaGetTransactionStatus()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            MFA Transcation Status
+        </button>
+    </form>
+    <br>
+
+    <form onclick="mfaCancelTransaction()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            MFA Transcation Cancel
+        </button>
+    </form>
+    <br>
+
+    <!-- KYC ================================================================================================== -->
+    <h2 style="color:chocolate; margin-left: 10px;">
+        KYC
+    </h2>
+
+    <form onclick="kycGetUserStatus()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Kyc Get user status
+        </button>
+    </form>
+    <br>
+
+    <form onclick="kycGetUserStatusTopLevel()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Kyc Get user status top level
+        </button>
+    </form>
+
+    <!-- STORAGE EMAIL ================================================================================================== -->
+    <h2 style="color:chocolate; margin-left: 10px;">
+        Storage Email
+    </h2>
+
+    <form onclick="storageByEmailDataSet()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Data Set
+        </button>
+    </form>
+
+    <br>
+    <form onclick="storageByEmailDataGet()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Data Get
+        </button>
+    </form>
+    <br>
+
+    <form onclick="storageByEmailGetKeysList()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Get Keys List
+        </button>
+    </form>
+    <br>
+
+    <form onclick="storageByEmailGetKeysListShared()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Get Keys List Shared
+        </button>
+    </form>
+    <br>
+    <form onclick="storageByEmailDeleteKey()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Delete Key
+        </button>
+    </form>
+
+    <!-- ================================================================================================== -->
+    <script>
+        let clientInfo = new clientInfoBasic("your.client.id",
+                                             "your.client.secret",
+                                             "redirect.uri");
+        let sdk = null;
+        (async () => {
+            sdk = new hyperIdSdk(clientInfo, infrastructureType.PRODUCTION);
+            await sdk.init();
+            window.onload = sdk.auth.handleOAuthCallback();
+            sdk.on('tokensChanged', async(rt, at) => {
+                //console.log(at);
+                //console.log(rt);
+            });
+        })()
+
+        function loginWeb2() {
+            window.location.href = sdk.auth.startSignInWeb2();
+        }
+
+        
+        function loginWeb3() {
+            window.location.href = sdk.auth.startSignInWeb3();
+        }
+
+        function userInfo() {
+            let uinfo = sdk.auth.userInfo();
+            console.log(uinfo);
+            console.log(sdk.auth.getAccessToken());
+        }
+
+        async function checkSession() {
+            let cs = await sdk.auth.checkSession();
+            console.log(cs)
+        }
+
+        async function logout() {
+            await sdk.auth.logout();
+        }
+
+        // <!-- MFA ================================================================================================== -->
+        async function mfaCheckAvailability() {
+            let isAvailable = await sdk.mfa.checkAvailability(sdk.auth.getAccessToken());
+            console.log(isAvailable)
+        }
+
+        let transactionId = null;
+        async function mfaStartTransaction(){
+            transactionId = await sdk.mfa.startTransaction(sdk.auth.getAccessToken(), "42", "Silvester my Stallone?");
+            console.log(transactionId)
+        }
+
+        async function mfaGetTransactionStatus(){
+            let status = await sdk.mfa.getTransactionStatus(sdk.auth.getAccessToken(), transactionId);
+            console.log(status);
+        }
+
+        async function mfaCancelTransaction(){
+            await sdk.mfa.cancelTransaction(sdk.auth.getAccessToken(), transactionId);
+        }
+        
+        // <!-- KYC ================================================================================================== -->
+        
+        async function kycGetUserStatus(){
+            let kycData = await sdk.kyc.getUserStatus(sdk.auth.getAccessToken());
+            console.log(kycData);
+        }
+
+        async function kycGetUserStatusTopLevel(){
+            let kycData = await sdk.kyc.getUserStatusTopLevel(sdk.auth.getAccessToken());
+            console.log(kycData);
+        }
+
+
+        // <!-- STORAGE EMAIL ================================================================================================== -->
+
+        async function storageByEmailDataSet() {
+            //await sdk.storageEmail.setData(sdk.auth.getAccessToken(), "pin", "111111");
+            await sdk.storageUserId.setData(sdk.auth.getAccessToken(), "pin", "111111");
+            //await sdk.storageWallet.setData(sdk.auth.getAccessToken(), "0xea79b22386245c82ea682d5672e070611ee82cb5", "pin", "111111");
+        }
+
+        async function storageByEmailDataGet() {
+            //let data = await sdk.storageEmail.getData(sdk.auth.getAccessToken(), "pin");
+            let data = await sdk.storageUserId.getData(sdk.auth.getAccessToken(), "pin");
+            // let data = await sdk.storageWallet.getData(sdk.auth.getAccessToken(), "0xea79b22386245c82ea682d5672e070611ee82cb5", "pin");
+            console.log(data);
+        }
+
+        async function storageByEmailGetKeysList(){
+            //let data = await sdk.storageEmail.getKeysList(sdk.auth.getAccessToken());
+            let data = await sdk.storageUserId.getKeysList(sdk.auth.getAccessToken());
+            //let data = await sdk.storageWallet.getKeysList(sdk.auth.getAccessToken(), "0xea79b22386245c82ea682d5672e070611ee82cb5");
+            console.log(data);
+        }
+
+        async function storageByEmailGetKeysListShared(){
+            //let data = await sdk.storageEmail.getKeysListShared(sdk.auth.getAccessToken());
+            let data = await sdk.storageUserId.getKeysListShared(sdk.auth.getAccessToken());
+            //let data = await sdk.storageWallet.getKeysListShared(auth.getAccessToken(), "0xea79b22386245c82ea682d5672e070611ee82cb5");
+            console.log(data);
+        }
+
+        async function storageByEmailDeleteKey(){
+            //await sdk.storageEmail.deleteKey(sdk.auth.getAccessToken(), "pin");
+            await sdk.storageUserId.deleteKey(sdk.auth.getAccessToken(), "pin");
+            //await sdk.storageWallet.deleteKey(sdk.auth.getAccessToken(), "0xea79b22386245c82ea682d5672e070611ee82cb5", "pin");
+        }
+    </script>
+</body>
+</html>

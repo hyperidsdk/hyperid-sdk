@@ -1,0 +1,28 @@
+﻿@page
+@model hyperid_sdk_demo.Pages.KycModel
+@{
+}
+
+
+<!DOCTYPE html>
+<html>
+<body>
+    @{
+        <p>
+            KYC interface successfully created.
+        </p>
+        <ul>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Kyc?handler=StausGet" type="button" class="btn">Status get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                 <form method="post">
+                     <a href="Kyc?handler=TopLevelStatusGet" type="button" class="btn">Top level status get</a>
+                 </form>
+             </li>
+        </ul>
+    }
+</body>
+</html>

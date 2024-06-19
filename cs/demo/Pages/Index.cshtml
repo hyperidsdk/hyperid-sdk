@@ -1,0 +1,101 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<!DOCTYPE html>
+<html>
+<body>
+    @{
+        switch(Model.AuthSDKState)
+        {
+            case hyperid_sdk_demo.Model.AuthSDKState.CREATED:
+                {
+                    <form method="post">
+                        <input type="radio" asp-for="ConnectionType" value=0 /> Basic <br />
+                        <input type="radio" asp-for="ConnectionType" value=1 /> HS256 <br />
+                        <input type="radio" asp-for="ConnectionType" value=2 /> RS256 <br />
+
+                        <button asp- type="submit" class="btn">SDK Auth initialise</button>
+                    </form>
+                }
+                break;
+            case hyperid_sdk_demo.Model.AuthSDKState.INITIALISED:
+                {
+                    <p>
+                        Auth SDK is initialised. Now Authorization possible
+                    </p>
+                    <ul>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Index?handler=SDKAuthorize&flow=web2" type="button" class="btn">SDK Auth Web2</a>
+                            </form>
+                        </li>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Index?handler=SDKAuthorize&flow=web3" type="button" class="btn">SDK Auth Web3</a>
+                            </form>
+                        </li>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Index?handler=SDKAuthorize&flow=wallet_get" type="button" class="btn">SDK Auth with wallet get</a>
+                            </form>
+                        </li>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Index?handler=SDKAuthorize&flow=guest_upgrade" type="button" class="btn">SDK Auth guest upgrade</a>
+                            </form>
+                        </li>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Index?handler=SDKAuthorize&flow=idp" type="button" class="btn">SDK Auth with identity provider</a>
+                            </form>
+                        </li>
+                    </ul>
+                }
+                break;
+            case hyperid_sdk_demo.Model.AuthSDKState.AUTHORIZED:
+                {
+                    <p>
+                        Auth SDK is authrised.
+                    </p>
+                     <ul>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Index?handler=SignOut" type="button" class="btn">Sign Out</a>
+                            </form>
+                        </li>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Index?handler=UserInfo" type="button" class="btn">User Info</a>
+                            </form>
+                        </li>
+                     </ul>
+                    <p>
+                        Available next SDK parts.
+                    </p>
+                    <ul>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Index?handler=MFA" type="button" class="btn">MFA</a>
+                            </form>
+                        </li>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Index?handler=KYC" type="button" class="btn">KYC</a>
+                            </form>
+                        </li>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Index?handler=Storage" type="button" class="btn">Storage</a>
+                            </form>
+                        </li>
+                    </ul>
+                }
+                break;
+
+        }
+    }
+</body>
+</html>

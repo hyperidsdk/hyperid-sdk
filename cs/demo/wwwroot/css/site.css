@@ -1,0 +1,281 @@
+/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+body {
+    margin-bottom: 60px;
+    background: #F1EEEE;
+}
+
+.column {
+    display: grid;
+    row-gap: 4px;
+}
+
+.div-center {
+    align-items: center;
+    align-content: center;
+    align-self: center;
+    flex-direction: column;
+    display: flex;
+}
+
+.input {
+    background-color: #303245;
+    border-radius: 12px;
+    border: 0;
+    box-sizing: border-box;
+    color: #eee;
+    font-size: 18px;
+    outline: 0;
+    padding: 4px 20px;
+    margin-bottom: 5px;
+    text-align: center;
+    width: 300px;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+    font-family: 'Pressura Mono';
+}
+
+.btn {
+    min-width: 100px;
+    width: inherit;
+    border: none;
+    line-height: 24px;
+    box-sizing: border-box;
+    background: #1b6ec2;
+    color: #eee;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    --aug-border: 2px;
+    --aug-border-bg: #000;
+    --aug-br: 8px;
+    scroll-behavior: smooth;
+    width: 240px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-family: 'Pressura Mono';
+    font-style: normal;
+    font-weight: 1000;
+    font-size: 14px;
+}
+
+    .btn:hover {
+        background-color: #000;
+        color: #fff;
+    }
+
+.nav-bar-profile {
+    background-image: url(/Lavax/img/profile.svg);
+    background-repeat: no-repeat;
+    background-position-y: center;
+    position: relative;
+    display: block;
+    margin-left: 10px;
+    padding: 4px 10px 2px 30px;
+    font-size: 14px;
+    height: 20px;
+}
+
+.div-kyc-app {
+    font-family: 'Pressura Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 150%;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+    color: #000000;
+    padding-bottom: 20px;
+}
+
+.navbar-right {
+}
+
+a {
+    color: #0366d6;
+}
+
+.navbar-nav {
+}
+
+    .navbar-nav > li {
+        float: left;
+    }
+
+        .navbar-nav > li > a {
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.nav_auth_header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin: 32px auto 64px;
+    padding: 0 32px 0;
+    max-width: 1000px;
+}
+
+.nav-bar {
+    display: contents;
+}
+
+header .navbar {
+    margin-bottom: 0;
+    min-height: inherit;
+}
+
+.navbar-pf {
+    background: inherit;
+}
+
+    .navbar-pf .navbar-header {
+        padding: 30px 0px 40px 40px;
+        border: none;
+    }
+
+    .navbar-pf .navbar-utility {
+        right: 20px;
+        top: -34px;
+        font-size: 12px;
+    }
+
+.nav-bar-items {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-pf .navbar-utility > li > a {
+    color: #000 !important;
+    padding-bottom: 12px;
+    padding-top: 11px;
+    border-left: medium none;
+}
+
+    .navbar-pf .navbar-utility > li > a:hover {
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+
+.nav {
+    padding-left: 0px;
+    list-style: none;
+}
+
+.div-kyc-item-name {
+    font-family: 'Pressura Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 150%;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+    color: #000000;
+}
+
+.div-kyc-item-value {
+    font-family: 'Pressura Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 150%;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+    color: #666666;
+}
+
+div.kc-logo-text {
+    background-image: url(/Lavax/img/logo.png);
+    background-repeat: no-repeat;
+    width: 260px;
+    height: 80px;
+}
+
+.glyphicon-exit {
+    display: inline-block;
+    background-image: url(/Lavax/img/icon-exit.svg);
+    background-repeat: no-repeat;
+    background-position: top;
+    width: 24px;
+    height: 24px;
+}
+
+input.form-control {
+    min-width: 240px;
+    border: 2px solid #000;
+    height: 34px;
+    box-sizing: border-box;
+    border-radius: 0;
+    background: var(--main-bg-color);
+    width: 100%;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.form-control {
+    height: 34px !important;
+}
+
+input.form-control[disabled],
+input.form-control[readonly] {
+    border-color: #bbb;
+    cursor: inherit;
+    background-color: #F1EEEE;
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    height: 26px;
+    padding: 2px 6px;
+    font-size: 12px;
+    line-height: 1.66666667;
+    color: #363636;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #bbb;
+    border-radius: 1px;
+    box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+    .form-control::placeholder {
+        font-style: normal !important;
+    }
+
+.form-horizontal .form-group {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.li_inline {
+    display: inline-block
+
+}

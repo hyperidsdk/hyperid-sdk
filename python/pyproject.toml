@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[metadata]
+name = "hyperid"
+version = "0.0.1"
+
+[tool.setuptools.packages]
+find = {}
+
+[project]
+name = "hyperid"
+version = "0.0.1"
+description = "HyperId SDK"
+readme = "readme.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests",
+    "PyJWT"
+]

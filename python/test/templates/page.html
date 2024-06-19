@@ -1,0 +1,469 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2 style="color: white; margin-left: 50px;">
+    Sign in / Sign up options
+</h2>
+<div >
+    <form action="http://localhost:8085/login" method="post">
+        <input type="hidden" name="login" value="0">
+        <button type="submit" class="button-custom" style="width: 20%;">
+            Web 2.0 Sign in 
+        </button>
+    </form>
+    <br>
+
+    <form action="http://localhost:8085/login" method="post">
+        <input type="hidden" name="login" value="4">
+        <button type="submit" class="button-custom" style="width: 20%;">
+            Web 2.0 Sign in + Connect Wallet
+        </button>
+    </form>
+    <br>
+
+    <form action="http://localhost:8085/login" method="post">
+        <input type="hidden" name="login" value="6">
+        <button type="submit" class="button-custom" style="width: 20%;">
+            Web 3.0 Sign In
+        </button>
+    </form>
+    <br>
+
+    <form action="http://localhost:8085/login" method="post">
+        <input type="hidden" name="login" value="3">
+        <button type="submit" class="button-custom" style="width: 20%;">
+            Sign in Auto Guest
+        </button>
+    </form>
+    <br>
+
+    <form action="http://localhost:8085/login" method="post">
+        <input type="hidden" name="login" value="9">
+        <button type="submit" class="button-custom" style="width: 20%;">
+            Sign In with identity provider
+        </button>
+    </form>
+    <br>
+
+    <h2 style="color: white; margin-left: 80px;">
+        HyperID Features
+    </h2>
+
+    <form action="http://localhost:8085/logout" method="post">
+        <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+            Log Out
+        </button>
+        {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+        {% endif%}
+    </form>
+    <br>
+
+    <div>
+        <form action="http://localhost:8085/user_info" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Info
+            </button>
+            {% if not is_authorized %}
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            {% endif%}
+            {% if user is defined %}
+            <div >
+                <p>User Id: {{ user.user_id}}</p>
+                <p>Email: {{ user.email}}</p>
+                <p>Device Id: {{ user.device_id}}</p>
+                <p>Ip: {{ user.ip}}</p>
+                <p>Wallet: {{ user.wallet.address}}</p>
+            </div>
+            {% endif%}
+        </form>
+    </div>
+
+    <!-- ================================================================================================== -->
+    <h2 style="color: white; margin-left: 10px;">
+        Multi Factor Authorization (MFA)
+    </h2>
+
+    <form action="http://localhost:8085/mfa/availability-check" method="post">
+        <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+            MFA Availability Check
+        </button>
+        {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+        {% endif%}
+    </form>
+    <br>
+
+    <form action="http://localhost:8085/mfa/transaction-start" method="post">
+        <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+            MFA Transcation Start
+        </button>
+        {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+        {% endif%}
+        {% if transaction_id is defined %}
+            <div >
+                <p>Transaction Id: {{ transaction_id}}</p>
+            </div>
+        {% endif%}
+        {% if action_id is defined %}
+        <div >
+            <p>Action Id: {{ action_id }}</p>
+        </div>
+        {% endif%}
+    </form>
+    <br>
+
+    <form action="http://localhost:8085/mfa/transaction-status-get" method="post">
+        <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+            MFA Transaction Status Check
+        </button>
+        {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+        {% endif%}
+    </form>
+    <br>
+
+    <!-- ================================================================================================== -->
+    <h2 style="color: white; margin-left: 100px;">
+        KYC Features
+    </h2>
+
+    <form action="http://localhost:8085/kyc/user-status-get" method="post">
+        <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+            KYC User Status Get
+        </button>
+        {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+        {% endif%}
+    </form>
+    <br>
+
+    <form action="http://localhost:8085/kyc/user-status-top-levelget" method="post">
+        <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+            KYC User Status Top Level Get
+        </button>
+        {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+        {% endif%}
+    </form>
+    <br>
+
+
+<!-- ================================================================================================== -->
+    <h2 style="color: white; margin-left: 30px;">
+        Storage By Email Features
+    </h2>
+
+    <div>
+        <form action="http://localhost:8085/storage/data-set-by-email" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Data Set By Email
+            </button>
+            {% if not is_authorized %}
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            {% else %}
+                <div style="padding-top: 5px;">
+                    <input type="text" name="key" placeholder="key">
+                    <input type="text" name="value" placeholder="value">
+                </div>
+            {% endif%}
+        </form>
+    </div>
+    <br>
+    <div>
+        <form action="http://localhost:8085/storage/data-get-by-email" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Data Get By Email
+            </button>
+            {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+            {% else %}
+                <div style="padding-top: 5px;">
+                    <input type="text" name="key" placeholder="key">
+                    <input type="text" value="{{ user_data_get_by_email_value }}" readonly>
+                </div>
+            {% endif%}
+        </form>
+    </div>
+    <br>
+
+    <form action="http://localhost:8085/storage/data-keys-list-get-by-email" method="post">
+        <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+            User Data Keys List Get By Email
+        </button>
+        {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+        {% endif %}
+        {% if user_keys is defined %}
+        <div >
+            <p>Keys Public: {{ user_keys }}</p>
+        </div>
+        {% endif%}
+    </form>
+    <br>
+
+    <div>
+        <form action="http://localhost:8085/storage/data-delete-by-email" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Data Delete By Email
+            </button>
+            {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+            {% else %}
+                <div style="padding-top: 5px;">
+                    <input type="text" name="key" placeholder="key">
+                </div>
+            {% endif%}
+        </form>
+    </div>
+    <br>
+
+    <!-- ================================================================================================== -->
+    <h2 style="color: white; margin-left: 30px;">
+        Storage By UserId Features
+    </h2>
+
+    <div>
+        <form action="http://localhost:8085/storage/data-set-by-user-id" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Data Set By User Id
+            </button>
+            {% if not is_authorized %}
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            {% else %}
+                <div style="padding-top: 5px;">
+                    <input type="text" name="key" placeholder="key">
+                    <input type="text" name="value" placeholder="value">
+                </div>
+            {% endif%}
+        </form>
+    </div>
+    <br>
+    <div>
+        <form action="http://localhost:8085/storage/data-get-by-user-id" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Data Get By User Id
+            </button>
+            {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+            {% else %}
+                <div style="padding-top: 5px;">
+                    <input type="text" name="key" placeholder="key">
+                    <input type="text" value="{{ user_data_get_by_email_value }}" readonly>
+                </div>
+            {% endif%}
+        </form>
+    </div>
+    <br>
+
+    <form action="http://localhost:8085/storage/data-keys-list-get-by-user-id" method="post">
+        <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+            User Data Keys List Get By User Id
+        </button>
+        {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+        {% endif %}
+        {% if user_keys is defined %}
+        <div >
+            <p>Keys Public: {{ user_keys }}</p>
+        </div>
+        {% endif%}
+    </form>
+    <br>
+
+    <div>
+        <form action="http://localhost:8085/storage/data-delete-by-user-id" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Data Delete By UserId
+            </button>
+            {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+            {% else %}
+                <div style="padding-top: 5px;">
+                    <input type="text" name="key" placeholder="key">
+                </div>
+            {% endif%}
+        </form>
+    </div>
+    <br>
+    <!-- ================================================================================================== -->
+    <h2 style="color: white; margin-left: 30px;">
+        Storage By Wallet Features
+    </h2>
+    <div>
+        <form action="http://localhost:8085/storage/data-set-by-wallet" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%; ">
+                User Data Set By Wallet
+            </button>
+            {% if not is_authorized %}
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            {% endif %}
+        <div style="padding-top: 5px;">
+            <input type="text" name="key" placeholder="key">
+            <input type="text" name="value" placeholder="value">
+            <input type="text" name="wallet_address" placeholder="wallet_address">
+        </div>
+        </form>
+    </div>
+    <br>
+
+    <div>
+        <form action="http://localhost:8085/storage/data-get-by-wallet" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Data Get By Wallet
+            </button>
+            {% if not is_authorized %}
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            {% endif %}
+        <div style="padding-top: 5px;">
+            <input type="text" name="key" placeholder="key">
+            <input type="text" name="wallet_address" placeholder="wallet_address">
+            <input type="text" name="value" value="{{ user_data_get_by_wallet_value }}">
+        </div>
+        </form>
+    </div>
+    <br>
+    <form action="http://localhost:8085/storage/data-keys-list-get-by-wallet" method="post">
+        <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%; ">
+            User Data Keys List Get By Wallet
+        </button>
+        {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+        {% endif %}
+        <div style="padding-top: 5px;">
+            <input type="text" name="wallet_address" placeholder="wallet_address">
+        </div>
+    </form>
+
+    <div>
+        <form action="http://localhost:8085/storage/data-delete-by-wallet" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Data Delete By UserId
+            </button>
+            {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+            {% else %}
+                <div style="padding-top: 5px;">
+                    <input type="text" name="key" placeholder="key">
+                    <input type="text" name="wallet_address" placeholder="wallet_address">
+                </div>
+            {% endif%}
+        </form>
+    </div>
+    <br>
+
+    <!-- ================================================================================================== -->
+    <h2 style="color: white; margin-left: 30px;">
+        Storage By IDP Features
+    </h2>
+    <div>
+        <form action="http://localhost:8085/storage/data-set-by-idp" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Data Set By IDP
+            </button>
+            {% if not is_authorized %}
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            {% endif %}
+            <div style="padding-top: 5px;">
+                <input type="text" name="idp" placeholder="idp">
+                <input type="text" name="key" placeholder="key">
+                <input type="text" name="value" placeholder="value">
+            </div>
+        </form>
+    </div>
+
+    <br>
+    <div>
+        <form action="http://localhost:8085/storage/data-get-by-idp" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Data Get By IDP
+            </button>
+            {% if not is_authorized %}
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            {% endif %}
+            <div style="padding-top: 5px;">
+                <input type="text" name="idp" placeholder="idp">
+                <input type="text" name="key" placeholder="key">
+                <input type="text" value="{{ user_data_get_by_idp_value }}" readonly>
+            </div>
+        </form>
+    </div>
+    <br>
+    <form action="http://localhost:8085/storage/data-keys-list-get-by-idp" method="post">
+        <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+            User Data Keys List Get By IDP
+        </button>
+        {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+        {% endif %}
+        <div style="padding-top: 5px;">
+            <input type="text" name="idp" placeholder="idp">
+        </div>
+    </form>
+
+    <div>
+        <form action="http://localhost:8085/storage/data-delete-by-idp" method="post">
+            <button {% if not is_authorized %}disabled{%endif%} type="submit" class="button-custom" style="width: 20%;">
+                User Data Delete By IDP
+            </button>
+            {% if not is_authorized %}
+            <div style="color: orange; margin-left: 10px;">
+                Please sign in first to make requests
+            </div>
+            {% else %}
+                <div style="padding-top: 5px;">
+                    <input type="text" name="key" placeholder="key">
+                    <input type="text" name="identity_provider" placeholder="identity_provider">
+                </div>
+            {% endif%}
+        </form>
+    </div>
+    <br>
+
+</div>
+{% endblock content %}

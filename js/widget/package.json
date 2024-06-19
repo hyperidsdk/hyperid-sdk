@@ -1,0 +1,30 @@
+{
+  "name": "javascript-widget",
+  "version": "1.0.0",
+  "description": "",
+  "main": "widget.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:dev": "webpack --mode=development",
+    "build": "webpack --mode=production"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "buffer": "^6.0.3",
+    "cors": "^2.8.5",
+    "crypto-browserify": "^3.12.0",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "stream-browserify": "^3.0.0",
+    "util": "^0.12.5",
+    "uuid": "^9.0.1",
+    "vm-browserify": "^1.1.2"
+  }
+}

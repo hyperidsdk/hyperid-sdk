@@ -1,0 +1,137 @@
+﻿@page
+@model hyperid_sdk_demo.Pages.StorageModel
+@{
+}
+
+
+
+<!DOCTYPE html>
+<html>
+<body>
+    @{
+        <p>
+            Storage SDK available.
+        </p>
+        <p>
+            Storage by Email
+        </p>
+        <ul>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=KeysGetByEmail" type="button" class="btn">Keys Get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=SharedKeysGetByEmail" type="button" class="btn">Shared keys get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataSetByEmail" type="button" class="btn">Data set</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataGetByEmail" type="button" class="btn">Data get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataDeleteByEmail" type="button" class="btn">Data delete</a>
+                </form>
+            </li>
+        </ul>
+        <p>
+            Storage by UserId
+        </p>
+        <ul>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=KeysGetByUserId" type="button" class="btn">Keys Get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=SharedKeysGetByUserId" type="button" class="btn">Shared keys get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataSetByUserId" type="button" class="btn">Data set</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataGetByUserId" type="button" class="btn">Data get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataDeleteByUserId" type="button" class="btn">Data delete</a>
+                </form>
+            </li>
+        </ul>
+        <p>
+            Storage by Identity provider
+        </p>
+        <ul>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=KeysGetByIdp" type="button" class="btn">Keys Get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=SharedKeysGetByIdp" type="button" class="btn">Shared keys get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataSetByIdp" type="button" class="btn">Data set</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataGetByIdp" type="button" class="btn">Data get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataDeleteByIdp" type="button" class="btn">Data delete</a>
+                </form>
+            </li>
+        </ul>
+        <p>
+            Storage by Wallet
+        </p>
+        <ul>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=KeysGetByWallet" type="button" class="btn">Keys Get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=SharedKeysGetByWallet" type="button" class="btn">Shared keys get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataSetByWallet" type="button" class="btn">Data set</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataGetByWallet" type="button" class="btn">Data get</a>
+                </form>
+            </li>
+            <li class="li_inline">
+                <form method="post">
+                    <a href="Storage?handler=DataDeleteByWallet" type="button" class="btn">Data delete</a>
+                </form>
+            </li>
+        </ul>
+    }
+</body>
+</html>

@@ -1,0 +1,52 @@
+﻿@page
+@model hyperid_sdk_demo.Pages.MfaModel
+@{
+}
+
+
+<!DOCTYPE html>
+<html>
+<body>
+    @{
+        switch(Model.MFASDKState)
+        {
+            case hyperid_sdk_demo.Model.MfaSDKState.CREATED:
+                {
+                    <form method="post">
+                        <a href="Mfa?handler=AvailabilityCheck" type="button" class="btn">Availability check</a>
+                    </form>
+                }
+                break;
+            case hyperid_sdk_demo.Model.MfaSDKState.AVAILABILITY_CHECKED:
+                {
+                    <p>
+                        MFA requests available. You can create transaction.
+                    </p>
+                    <form method="post">
+                        <a href="Mfa?handler=TransactionCreate" type="button" class="btn">Transaction create</a>
+                    </form>
+                }
+                break;
+            case hyperid_sdk_demo.Model.MfaSDKState.TRANSACTION_CREATED:
+                {
+                    <p>
+                        Transaction with id = @(Model.TransactionId) successfully created.
+                    </p>
+                    <ul>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Mfa?handler=TransactionStatusCheck&transactionId=@(Model.TransactionId)" type="button" class="btn">Transaction status check</a>
+                            </form>
+                        </li>
+                        <li class="li_inline">
+                            <form method="post">
+                                <a href="Mfa?handler=TransactionCancel&transactionId=@(Model.TransactionId)" type="button" class="btn">Transaction cancel</a>
+                            </form>
+                        </li>
+                    </ul>
+                }
+                break;
+        }        
+    }
+</body>
+</html>

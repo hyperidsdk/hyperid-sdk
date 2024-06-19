@@ -1,0 +1,65 @@
+.button-custom {
+    min-width: 96px;
+    width: inherit;
+    border: none;
+    padding: 6px 16px;
+    margin-top: 7px;
+    line-height: 24px;
+    box-sizing: border-box;
+    border-radius: 24px;
+    background-color: #75CBDC;
+    color: #000;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 2px 3px rgb(3 3 3 / 10%);
+  }
+  
+  .button-custom::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--border-color);
+    z-index: -2;
+  }
+  
+  .button-custom::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--background-color);
+    z-index: -1;
+    clip-path: polygon(
+      var(--border-width) var(--border-width),
+      calc(var(--edge-size) + var(--border-width) * 0.5) var(--border-width),
+      calc(100% - var(--border-width)) var(--border-width),
+      calc(100% - var(--border-width))
+        calc(100% - calc(var(--edge-size) + var(--border-width) * 0.5)),
+      calc(100% - calc(var(--edge-size) + var(--border-width) * 0.5))
+        calc(100% - var(--border-width)),
+      calc(var(--border-width)) calc(100% - var(--border-width))
+    );
+    transition: clip-path 500ms;
+  }
+  
+  .button-custom:hover {
+    background-color: #98EEFF;
+  }
+  .button-custom:hover::after {
+  }
+
+  .button-custom:disabled {
+    background-color: #314F58;
+  }
+
+  .button-custom:disabled:hover {
+    background-color: #314F58;
+    color: black;
+  }
+
+  p {
+    color: white;
+  }

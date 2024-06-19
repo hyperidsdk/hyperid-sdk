@@ -1,0 +1,210 @@
+//**********************************************************************************************************************
+//	functions.php
+//----------------------------------------------------------------------------------------------------------------------
+
+add_action('admin_bar_menu', 'wpexplorer_new_admin_bar_dropdown', 1000);
+
+function wpexplorer_new_admin_bar_dropdown($admin_bar) {
+    $mainPage   = 'custom-hid-pages-by-roles';
+    $page1      = 'custom-hid-pages-by-roles-1';
+    $page2      = 'custom-hid-pages-by-roles-2';
+    $page3      = 'custom-hid-pages-by-roles-3';
+    $admin_bar->remove_node($mainPage);
+    if(defined('hyperID') && get_option('hid_auth_saved')) {
+        try {
+            $admin_bar->add_node( [
+                'id'    => $mainPage,
+                'title' => 'Custom Pages',
+            ]);
+            $sub_items = array();
+
+            $sub_items = [
+                [
+                    'id'     => $page1,
+                    'title'  => 'Custom Page 1',
+                    'href'   => esc_url( admin_url( 'page1.php' ) ),
+                ]
+            ];
+
+            if(in_array('role2', hyperIdClientController::getAuth()->getUserInfo()->user_roles)) {
+                $sub_items[] = [
+                    'id'     => $page2,
+                    'title'  => 'Custom Page 2',
+                    'href'   => esc_url( admin_url( 'page2.php' ) ),
+                ];
+            }
+
+            if(in_array('role3', hyperIdClientController::getAuth()->getUserInfo()->user_roles)) {
+                $sub_items[] = [
+                    'id'     => $page3,
+                    'title'  => 'Custom Page 3',
+                    'href'   => esc_url( admin_url( 'page3.php' ) ),
+                ];
+            }
+
+            foreach ( $sub_items as $sub_item ) {
+                $admin_bar->add_node( array_merge( [
+                    'parent' => $mainPage,
+                ], $sub_item ) );
+            }
+        } catch(Exception $e) {
+        } catch(Error $e) {}
+    }
+}
+
+//**********************************************************************************************************************
+//	page1.php
+//----------------------------------------------------------------------------------------------------------------------
+
+<?php
+/**
+ * About This Version administration panel.
+ *
+ * @package WordPress
+ * @subpackage Administration
+ */
+
+
+/** WordPress Administration Bootstrap */
+require_once __DIR__ . '/admin.php';
+
+// Used in the HTML title tag.
+/* translators: Page title of the About WordPress page in the admin. */
+$title = _x( 'Page1', 'page title' );
+
+list( $display_version ) = explode( '-', get_bloginfo( 'version' ) );
+
+require_once ABSPATH . 'wp-admin/admin-header.php';
+
+$userId     = '';
+$userEmail  = '';
+try{
+    $userId     = hyperIdClientController::getAuth(hyperIdClientController::getAuthRefreshToken())->getUserInfo()->user_id;
+    $userEmail  = hyperIdClientController::getAuth(hyperIdClientController::getAuthRefreshToken())->getUserInfo()->user_email;
+} catch(Exception $e) {
+    return;
+}
+
+$response = get_transient('project_roles');
+if($response === false) {
+    $response   = hyperIdClientController::getRoleManager()->rolesGet(hyperIdClientController::getSaAccessToken());
+    set_transient('project_roles', $response, 60);
+}
+$roleId2    = '';
+$roleId3    = '';
+if($response['result'] == RolesGetResult::SUCCESS) {
+    $roleId2Ind = array_search('role2', array_column($response['roles'], 'name'));
+    if($roleId2Ind) {
+        $roleId2 = $response['roles'][$roleId2Ind]['id'];
+    }
+    $roleId3Ind = array_search('role3', array_column($response['roles'], 'name'));
+    if($roleId3Ind) {
+        $roleId3 = $response['roles'][$roleId3Ind]['id'];
+    }
+}
+
+if(isset($_POST['action']) && $_POST['action'] == 'role2Upgrade') {
+    hyperIdClientController::getRoleManager()->userRoleAttach(hyperIdClientController::getSaAccessToken(), $userId, $userEmail, $roleId2);
+    hyperIdClientController::refreshAuthTokens();
+    echo '<meta http-equiv="refresh" content="0">';
+}
+if(isset($_POST['action']) && $_POST['action'] == 'role3Upgrade') {
+    hyperIdClientController::getRoleManager()->userRoleAttach(hyperIdClientController::getSaAccessToken(), $userId, $userEmail, $roleId3);
+    hyperIdClientController::refreshAuthTokens();
+    echo '<meta http-equiv="refresh" content="0">';
+}
+
+?>
+<div class="wrap about__container" style="font-size:large; color: black; width: 100%; text-align: center; margin-top: 20px" >
+    This page is for everyone (no role required)
+</div>
+
+<div style="width: fit-content; margin: auto;">
+    <form method='post' action='' style="display: inline-block">
+        <input type='hidden' name='action' value='role2Upgrade' />
+        <input type='submit' value='Upgrade to Role 2' style='margin-top: 0px'/>
+    </form>
+    
+    <form method='post' action='' style="display: inline-block">
+        <input type='hidden' name='action' value='role3Upgrade' />
+        <input type='submit' value='Upgrade to Role 3' style='margin-top: 0px'/>
+    </form>
+</div>
+
+//**********************************************************************************************************************
+//	page2.php
+//----------------------------------------------------------------------------------------------------------------------
+
+<?php
+/**
+ * About This Version administration panel.
+ *
+ * @package WordPress
+ * @subpackage Administration
+ */
+
+
+/** WordPress Administration Bootstrap */
+require_once __DIR__ . '/admin.php';
+
+// Used in the HTML title tag.
+/* translators: Page title of the About WordPress page in the admin. */
+$title = _x( 'Page1', 'page title' );
+
+list( $display_version ) = explode( '-', get_bloginfo( 'version' ) );
+
+require_once ABSPATH . 'wp-admin/admin-header.php';
+
+if(in_array('role2', hyperIdClientController::getAuth()->getUserRoles())) {
+?>
+    <div class="wrap about__container" style="font-size:large; color: black; width: 100%; text-align: center; margin-top: 20px" >
+        This page is for those who have 'role2'
+    </div>
+<?php
+} else {
+?>
+    <div class="wrap about__container" style="font-size:large; color: black; width: 100%; text-align: center; margin-top: 20px" >
+        Access denied (you need to upgrade to 'role2')
+    </div>
+<?php
+}
+?>
+
+//**********************************************************************************************************************
+//	page3.php
+//----------------------------------------------------------------------------------------------------------------------
+
+<?php
+/**
+ * About This Version administration panel.
+ *
+ * @package WordPress
+ * @subpackage Administration
+ */
+
+
+/** WordPress Administration Bootstrap */
+require_once __DIR__ . '/admin.php';
+
+// Used in the HTML title tag.
+/* translators: Page title of the About WordPress page in the admin. */
+$title = _x( 'Page1', 'page title' );
+
+list( $display_version ) = explode( '-', get_bloginfo( 'version' ) );
+
+require_once ABSPATH . 'wp-admin/admin-header.php';
+
+if(in_array('role3', hyperIdClientController::getAuth()->getUserRoles())) {
+?>
+<div class="wrap about__container" style="font-size:large; color: black; width: 100%; text-align: center; margin-top: 20px" >
+    This page is for those who have 'role3'
+</div>
+<?php
+} else {
+?>
+<div class="wrap about__container" style="font-size:large; color: black; width: 100%; text-align: center; margin-top: 20px" >
+    Access denied (you need to upgrade to 'role3')
+</div>
+<?php
+}
+?>
