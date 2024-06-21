@@ -2,6 +2,7 @@ import requests
 import jwt
 import datetime
 import uuid
+import json
 
 from .enum import (InfrastructureType,
                    AuthorizationFlowMode,
@@ -12,7 +13,8 @@ from .auth_token import AuthToken
 from .user_info import UserInfo
 from .discover import Discover
 from .enum import VerificationLevel
-from ..error import (AccessTokenExpired,
+from ..error import (HyperIdException,
+                     AccessTokenExpired,
                      RefreshTokenExpired,
                      ServerError,
                      UnknownError,
@@ -36,6 +38,50 @@ DEFAULT_HEADERS = {
 
 AUTO_DISCOVER_URI = "/auth/realms/HyperID/.well-known/openid-configuration"
 
+class TransactionData:
+    def __init__(self,
+                 addressTo : str,
+                 chainId : str,
+                 addressFrom : str = None,
+                 value : str = None,
+                 data : str = None,
+                 gas : str = None,
+                 nonce : str = None):
+        self.addressTo = addressTo
+        self.chain = chainId
+        if(addressFrom) : self.addressFrom = addressFrom
+        if(value) : self.value = value
+        if(data) : self.data = data
+        if(gas) : self.gas = gas
+        if(nonce) : self.nonce = nonce
+
+    def isValid(self):
+        try:
+            int(self.addressTo, 16)
+            if(hasattr(self, 'addressFrom')): int(self.addressFrom, 16)
+            if(not hasattr(self, 'value') and not hasattr(self, 'data')): return False
+            if(hasattr(self, 'value')):
+                if(self.value.startswith('0x') or self.value.startswith('0X')):
+                    int(self.value, 16)
+                else:
+                    float(self.value)
+            if(hasattr(self, 'data')): int(self.data)
+            return True
+        except ValueError:
+            return False
+
+    def toJson(self):
+        data = {
+            'to':self.addressTo,
+            'chain':self.chain
+        }
+        if(hasattr(self, 'addressFrom')) : data['from'] = self.addressFrom
+        if(hasattr(self, 'value')) : data['value'] = self.value
+        if(hasattr(self, 'data')) : data['data'] = self.data
+        if(hasattr(self, 'gas')) : data['gas'] = self.gas
+        if(hasattr(self, 'nonce')) : data['nonce'] = self.nonce
+        return json.dumps(data)
+
 class Auth:
     def __init__(self,
                  client_info : ClientInfo,
@@ -48,6 +94,9 @@ class Auth:
         self._discover = None
         self._access_token : AuthToken = None
         self._refresh_token : AuthToken = None
+        self.transactionResult : str = None
+        self.transactionResultDesc : str = None
+        self.transactionHash : str = None
         self.__init(refresh_token)
 
     def __init(self, refresh_token):
@@ -116,6 +165,27 @@ class Auth:
         if identity_provider:
             params['identity_provider'] = identity_provider
         
+        return f"{self._discover.authorization_endpoint}?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
+
+    def start_sign_in_with_transaction(self,
+                                       addressTo,
+                                       chain,
+                                       addressFrom = None,
+                                       value = None,
+                                       data = None,
+                                       gas = None,
+                                       nonce = None):
+        params = {
+            "response_type": "code",
+            "client_id": self.client_info.client_id,
+            "redirect_uri": self.client_info.redirect_uri,
+            "scope": self._discover.get_scopes(),
+            "flow_mode": AuthorizationFlowMode.SIGN_IN_WEB2
+        }
+        transaction = TransactionData(addressTo, chain, addressFrom, value, data, gas, nonce)
+        if(not transaction.isValid()): raise HyperIdException("Transaction prameters is invalid")
+        params['transaction'] = transaction.toJson()
+
         return f"{self._discover.authorization_endpoint}?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
 
 
@@ -202,6 +272,10 @@ class Auth:
                                              wallet_get_mode=wallet_get_mode,
                                              wallet_family=wallet_family)
 
+    def start_sign_in_auto_wallet_get(self):
+        return self.__get_authentication_url(flow_mode=AuthorizationFlowMode.SIGN_IN_WALLET_GET,
+                                             wallet_get_mode=WalletGetMode.AUTO_WALLET_GET)
+
     def start_sign_in_by_identity_provider(self,
                                            identity_provider : str,
                                            verification_level : VerificationLevel = None):
@@ -209,7 +283,15 @@ class Auth:
                                              identity_provider=identity_provider,
                                              verification_level=verification_level)
 
-    def exchange_code_to_token(self, authorization_code : str):
+    def exchange_code_to_token(self,
+                               authorization_code : str,
+                               transaction_result : str = None,
+                               transaction_result_desc : str = None,
+                               transaction_hash : str = None):
+        if(transaction_result) : self.transactionResult = transaction_result
+        if(transaction_result_desc) : self.transactionResultDesc = transaction_result_desc
+        if(transaction_hash) : self.transactionHash = transaction_hash
+
         payload = {
             "grant_type": "authorization_code",
             "code": authorization_code,

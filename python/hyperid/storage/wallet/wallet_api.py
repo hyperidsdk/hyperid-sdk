@@ -7,7 +7,8 @@ from ...error import (ServerError,
                       WalletNotFound,
                       DataKeyInvalid)
 from ..enum import UserDataAccessScope
-from .enum import (UserDataByWalletSetResult,
+from .enum import (UserWalletsGetResult,
+                   UserDataByWalletSetResult,
                    UserDataByWalletGetResult,
                    UserDataKeysByWalletGetResult,
                    UserDataKeysByWalletDeleteResult)
@@ -28,7 +29,39 @@ class Wallet:
             'User-Agent': 'HyperID SDK',
             'Authorization': "Bearer " + access_token}
         return headers
-    
+
+    def get_wallets(self,
+                    access_token : str):
+        if not access_token:
+            raise AccessTokenExpired
+        
+        headers = self.__get_headers(access_token)
+        url = self.__build_url("/user-wallets/get")
+
+        try:
+            response = requests.post(url, headers=headers, timeout=self.request_timeout, verify=True)
+            if response.status_code in range(200, 299):
+                jsn = json.loads(response.text)
+                result = UserDataByWalletSetResult(jsn.get('result'))
+                if result != UserWalletsGetResult.SUCCESS:
+                    match result:
+                        case UserWalletsGetResult.FAIL_BY_ACCESS_DENIED: raise AccessTokenExpired
+                        case UserWalletsGetResult.FAIL_BY_TOKEN_EXPIRED: raise AccessTokenExpired
+                        case UserWalletsGetResult.FAIL_BY_TOKEN_INVALID: raise AccessTokenExpired
+                        case _: raise ServerError
+                wallets = []
+                walletsPublic = jsn.get("wallets_public", [])
+                for wallet in walletsPublic:
+                    wallets.append(res.WalletData(wallet.get("address"), wallet.get("chain")))
+                walletsPrivate = jsn.get("wallets_private", [])
+                for wallet in walletsPrivate:
+                    wallets.append(res.WalletData(wallet.get("address"), wallet.get("chain")), False)
+                return wallets
+            else:
+                raise ServerError
+        except Exception as e:
+            raise
+
     def set_data(self,
                  access_token : str,
                  wallet_address : str,

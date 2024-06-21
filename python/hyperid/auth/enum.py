@@ -13,6 +13,7 @@ class AuthorizationMethod(Enum):
     RS256  = 2
 
 class WalletGetMode(Enum):
+    AUTO_WALLET_GET     = 0
     WALLET_GET_FAST     = 2
     WALLET_GET_FULL     = 3
 

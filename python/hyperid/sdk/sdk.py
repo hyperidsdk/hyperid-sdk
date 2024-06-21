@@ -97,9 +97,22 @@ class Sdk:
                                  wallet_family : WalletFamily = WalletFamily.ETHEREUM):
         return self.auth.start_sign_in_wallet_get(wallet_get_mode, wallet_family)
 
+    def start_sign_in_auto_wallet_get(self):
+        return self.auth.start_sign_in_auto_wallet_get()
+
     def start_sign_in_by_identity_provider(self, identity_provider : str, verification_level : VerificationLevel = None):
         return self.auth.start_sign_in_by_identity_provider(identity_provider, verification_level)
-    
+
+    def start_sign_in_with_transaction(self,
+                                       addressTo,
+                                       chain,
+                                       addressFrom = None,
+                                       value = None,
+                                       data = None,
+                                       gas = None,
+                                       nonce = None):
+        return self.auth.start_sign_in_by_identity_provider(addressTo, chain, addressFrom, value, data, gas, nonce)
+
     def complete_sign_in(self, response_url):
         error = response_url.args.get("error")
         if error != None:
@@ -204,6 +217,10 @@ class Sdk:
 
     def delete_data_key_by_identity_provider(self, identity_provider : str, value_key : str):
         func = lambda: self.storage_idp.data_key_delete(self.__get_access_token_wrapped(), identity_provider, value_key)
+        return self.__function_wrapper(func)
+
+    def get_wallets(self):
+        func = lambda: self.storage_wallet.get_wallets(self.__get_access_token_wrapped())
         return self.__function_wrapper(func)
 
     def set_data_by_wallet(self,

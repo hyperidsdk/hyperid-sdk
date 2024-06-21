@@ -55,7 +55,10 @@ def callback():
         return redirect(url_for('home'))
     authorization_code = request.args.get("code")
     try:
-        auth.exchange_code_to_token(authorization_code)
+        auth.exchange_code_to_token(authorization_code,
+                                    request.args.get("transaction_result"),
+                                    request.args.get("transaction_result_description"),
+                                    request.args.get("transaction_result_hash"))
     except Exception as e:
         print("exchange_code_to_token error: ", e)
     return redirect(url_for('home'))

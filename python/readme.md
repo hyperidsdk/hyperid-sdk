@@ -57,8 +57,29 @@ url = sdk.start_sign_in_web2()
 url = sdk.start_sign_in_web3()
 url = sdk.start_sign_in_wallet_get()
 ```
-Sign in using identity provider:
+
+Sign in with wallet get without user interaction (return default wallet for user):
  ```python
+url = sdk.start_sign_in_auto_wallet_get()
+```
+
+Sign in with transaction, returns `transaction_result` and `transaction_hash` (*if result == 0*) as `GET` parameters.\
+Mandatory parameters is:
+- `addressTo` - wallet address where to send tokens (hex string)
+- `chain` - chain of token
+Optional:
+- `addressFrom` - user wallet address to transfer tokens from (hex string)
+- `value` - value of tokens to transfer (value or data should be present)
+- `data` - data to make transaction in hex (value or data should be present)
+- `gas`
+- `nonce`
+
+ ```python
+url = sdk.start_sign_in_with_transaction(addressTo="0x501Fc2e1854cef866A084bCCbABbf68401FCaCb0", chain="1", value="1")
+```
+
+Sign in using identity provider:
+```python
 url = sdk.start_sign_in_by_identity_provider('google')
 ```
 
@@ -385,6 +406,17 @@ except HyperIdException as e:
 ```
 
 ### Storage by wallet
+
+Get Wallets:\
+Allows you to get all the wallets associated with user and current client.
+```python
+try:
+    wallets = sdk.get_wallets()
+except HyperIdException as e:
+    # error handling
+except AuthorizationRequired:
+    # sign in required
+```
 
 Allows you to setup any data assosiated with wallet.
 Function takes 4 arguments: wallet(str), key(str), value(str) and access_scope(UserDataAccessScope). You can specify two types of access scope: public or private.
