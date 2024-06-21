@@ -15,6 +15,7 @@ enum AuthorizationMethod : int {
 }
 
 enum WalletGetMode : int {
+    case AUTO_WALLET_GET    = 0;
     case WALLET_GET_FAST    = 2;
     case WALLET_GET_FULL    = 3;
 }

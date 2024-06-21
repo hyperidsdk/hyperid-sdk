@@ -1,10 +1,13 @@
 //**********************************************************************************************************************
-//	functions.php
+//	wp-includes->functions.php
 //----------------------------------------------------------------------------------------------------------------------
 
 add_action('admin_bar_menu', 'wpexplorer_new_admin_bar_dropdown', 1000);
 
 function wpexplorer_new_admin_bar_dropdown($admin_bar) {
+    $role2Name = 'role2';
+    $role3Name = 'role3';
+
     $mainPage   = 'custom-hid-pages-by-roles';
     $page1      = 'custom-hid-pages-by-roles-1';
     $page2      = 'custom-hid-pages-by-roles-2';
@@ -26,7 +29,7 @@ function wpexplorer_new_admin_bar_dropdown($admin_bar) {
                 ]
             ];
 
-            if(in_array('role2', hyperIdClientController::getAuth()->getUserInfo()->user_roles)) {
+            if(in_array($role2Name, hyperIdClientController::getAuth()->getUserInfo()->user_roles)) {
                 $sub_items[] = [
                     'id'     => $page2,
                     'title'  => 'Custom Page 2',
@@ -34,7 +37,7 @@ function wpexplorer_new_admin_bar_dropdown($admin_bar) {
                 ];
             }
 
-            if(in_array('role3', hyperIdClientController::getAuth()->getUserInfo()->user_roles)) {
+            if(in_array($role3Name, hyperIdClientController::getAuth()->getUserInfo()->user_roles)) {
                 $sub_items[] = [
                     'id'     => $page3,
                     'title'  => 'Custom Page 3',
@@ -52,6 +55,9 @@ function wpexplorer_new_admin_bar_dropdown($admin_bar) {
     }
 }
 
+//**********************************************************************************************************************
+//	All pages goes to 'wp-admin' folder
+//----------------------------------------------------------------------------------------------------------------------
 //**********************************************************************************************************************
 //	page1.php
 //----------------------------------------------------------------------------------------------------------------------
@@ -76,6 +82,9 @@ list( $display_version ) = explode( '-', get_bloginfo( 'version' ) );
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
+$role2Name = 'role2';
+$role3Name = 'role3';
+
 $userId     = '';
 $userEmail  = '';
 try{
@@ -93,11 +102,11 @@ if($response === false) {
 $roleId2    = '';
 $roleId3    = '';
 if($response['result'] == RolesGetResult::SUCCESS) {
-    $roleId2Ind = array_search('role2', array_column($response['roles'], 'name'));
+    $roleId2Ind = array_search($role2Name, array_column($response['roles'], 'name'));
     if($roleId2Ind) {
         $roleId2 = $response['roles'][$roleId2Ind]['id'];
     }
-    $roleId3Ind = array_search('role3', array_column($response['roles'], 'name'));
+    $roleId3Ind = array_search($role3Name, array_column($response['roles'], 'name'));
     if($roleId3Ind) {
         $roleId3 = $response['roles'][$roleId3Ind]['id'];
     }
@@ -155,16 +164,18 @@ list( $display_version ) = explode( '-', get_bloginfo( 'version' ) );
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
-if(in_array('role2', hyperIdClientController::getAuth()->getUserRoles())) {
+$roleName = 'role2';
+
+if(in_array($roleName, hyperIdClientController::getAuth()->getUserInfo()->user_roles)) {
 ?>
     <div class="wrap about__container" style="font-size:large; color: black; width: 100%; text-align: center; margin-top: 20px" >
-        This page is for those who have 'role2'
+        This page is for those who have '<?php echo $roleName; ?>'
     </div>
 <?php
 } else {
 ?>
     <div class="wrap about__container" style="font-size:large; color: black; width: 100%; text-align: center; margin-top: 20px" >
-        Access denied (you need to upgrade to 'role2')
+        Access denied (you need to upgrade to '<?php echo $roleName; ?>')
     </div>
 <?php
 }
@@ -194,16 +205,18 @@ list( $display_version ) = explode( '-', get_bloginfo( 'version' ) );
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
-if(in_array('role3', hyperIdClientController::getAuth()->getUserRoles())) {
+$roleName = 'role3';
+
+if(in_array($roleName, hyperIdClientController::getAuth()->getUserInfo()->user_roles)) {
 ?>
 <div class="wrap about__container" style="font-size:large; color: black; width: 100%; text-align: center; margin-top: 20px" >
-    This page is for those who have 'role3'
+    This page is for those who have '<?php echo $roleName; ?>'
 </div>
 <?php
 } else {
 ?>
 <div class="wrap about__container" style="font-size:large; color: black; width: 100%; text-align: center; margin-top: 20px" >
-    Access denied (you need to upgrade to 'role3')
+    Access denied (you need to upgrade to '<?php echo $roleName; ?>')
 </div>
 <?php
 }

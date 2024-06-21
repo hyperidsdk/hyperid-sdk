@@ -46,4 +46,10 @@ class WrongCredentialsException extends HyperIdException {
     }
 }
 
+class TransactionDataInvalidException extends HyperIdException {
+    function __construct(Throwable $previous = null) {
+        parent::__construct('Transaction data is invalid, check parameters to proceed', -7, $previous);
+    }
+}
+
 ?>

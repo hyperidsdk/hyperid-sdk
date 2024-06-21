@@ -1,6 +1,7 @@
 <?php
 
 require_once 'client_info.php';
+require_once 'transaction.php';
 require_once __DIR__.'/../base/auth_token.php';
 require_once __DIR__.'/../base/discover.php';
 require_once __DIR__.'/../base/enum.php';
@@ -16,8 +17,8 @@ class Auth {
     public int                  $requestTimeout;
     public ClientInfo           $clientInfo;
     public Discover             $discover;
-    public ?AuthToken           $accessToken    = null;
-    public ?AuthToken           $refreshToken   = null;
+    public ?AuthToken           $accessToken            = null;
+    public ?AuthToken           $refreshToken           = null;
 
     function __construct(ClientInfo         $clientInfo,
                          string             $refreshToken       = '',
@@ -63,14 +64,25 @@ class Auth {
                         VerificationLevel     $verificationLevel          = null,
                         string                $identityProvider           = null,
                         bool                  $isIdentityProviderRequired = false,
-                        bool                  $switchAccount              = true) : string {
+                        bool                  $switchAccount              = true,
+                        string                $scopes                     = null,
+                        string                $state                      = null) : string {
         $params = [
             'response_type' => 'code',
             'client_id'     => $this->clientInfo->clientId,
             'redirect_uri'  => $this->clientInfo->redirectUri,
-            'scope'         => $this->discover->getScopes(),
             'flow_mode'     => $flowMode->value
         ];
+
+        if($scopes) {
+            $params['scope'] = $scopes;
+        } else {
+            $params['scope'] = $this->discover->getScopes();
+        }
+
+        if($state) {
+            $params['state'] = $state;
+        }
 
         if($walletGetMode) {
             $params['wallet_get_mode'] = $walletGetMode->value;
@@ -93,23 +105,63 @@ class Auth {
         return $this->discover->authorizationEndpoint.'?'.http_build_query($params);
     }
 
-    function getAuthWeb2Url() {
+    function getAuthSignInWithTransactionUrl(string $addressTo,
+                                             string $chainId,
+                                             string $addressFrom= null,
+                                             string $value      = null,
+                                             string $data       = null,
+                                             string $gas        = null,
+                                             string $nonce      = null,
+                                             string $scopes     = null,
+                                             string $state      = null) : string {
+        $params = [
+            'response_type' => 'code',
+            'client_id'     => $this->clientInfo->clientId,
+            'redirect_uri'  => $this->clientInfo->redirectUri,
+            'flow_mode'     => AuthorizationFlowMode::SIGN_IN_WEB2->value
+        ];
+
+        if($scopes) {
+            $params['scope'] = $scopes;
+        } else {
+            $params['scope'] = $this->discover->getScopes();
+        }
+
+        if($state) {
+            $params['state'] = $state;
+        }
+
+        $transaction = new TransactionData($addressTo, $chainId, $addressFrom, $value, $data, $gas, $nonce);
+        if(!$transaction->isValid()) {
+            throw new TransactionDataInvalidException();
+        }
+
+        $params['transaction'] = $transaction->toJson();
+
+        return $this->discover->authorizationEndpoint.'?'.http_build_query($params);;
+    }
+
+    function getAuthWeb2Url() : string {
         return $this->getAuthUrl(AuthorizationFlowMode::SIGN_IN_WEB2);
     }
 
-    function getAuthWeb3Url(WalletFamily $walletFamily = WalletFamily::ETHEREUM) {
+    function getAuthWeb3Url(WalletFamily $walletFamily = WalletFamily::ETHEREUM) : string {
         return $this->getAuthUrl(AuthorizationFlowMode::SIGN_IN_WEB3, null, $walletFamily);
     }
 
-    function getAuthGuestUpgradeUrl() {
+    function getAuthGuestUpgradeUrl() : string {
         return $this->getAuthUrl(AuthorizationFlowMode::SIGN_IN_GUEST_UPGRADE);
     }
 
-    function getAuthWalletGetUrl(WalletGetMode $walletGetMode = null, WalletFamily $walletFamily = null) {
+    function getAuthWalletGetUrl(WalletGetMode $walletGetMode = null, WalletFamily $walletFamily = null) : string {
         return $this->getAuthUrl(AuthorizationFlowMode::SIGN_IN_WALLET_GET, $walletGetMode, $walletFamily);
     }
 
-    function getAuthByIdentityProviderUrl(string $identityProvider = 'google', bool $isIdentityProviderRequired = true) {
+    function getAuthAutoWalletGetUrl() : string {
+        return $this->getAuthUrl(AuthorizationFlowMode::SIGN_IN_WALLET_GET, WalletGetMode::AUTO_WALLET_GET);
+    }
+
+    function getAuthByIdentityProviderUrl(string $identityProvider = 'google', bool $isIdentityProviderRequired = true) : string {
         return $this->getAuthUrl(AuthorizationFlowMode::SIGN_IN_IDENTITY_PROVIDER, null, null, null, $identityProvider, $isIdentityProviderRequired);
     }
 

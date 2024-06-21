@@ -60,7 +60,7 @@ function httpPostJSON($url, array $params = [], array $custom_headers = [], int 
     if ($custom_headers) {
         array_push($headers, ...$custom_headers);
     }
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $custom_headers);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     try {
         $response = curl_exec($ch);
     } catch(Exception $e) {

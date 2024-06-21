@@ -13,6 +13,7 @@
 
 <?php
     require_once __DIR__.'/../hyperid/auth/auth.php';
+    require_once __DIR__.'/../hyperid/modules/storage_email.php';
 
     session_start();
 
@@ -29,6 +30,14 @@
         if($_SESSION['auth'] instanceof Auth) {
             $auth = $_SESSION['auth'];
         }
+    }
+
+    $storageEmail = null;
+    if(!isset($_SESSION['storageEmail'])) {
+        $storageEmail = new HyperIDEmailStorage("http://127.0.0.1:8180");
+        $_SESSION['storageEmail'] = $storageEmail;
+    } else {
+        $storageEmail = $_SESSION['storageEmail'];
     }
 
     $user = null;
@@ -68,6 +77,10 @@
         }
     }
 
+    if (isset($_GET['loginTransaction']) && $auth) {
+        header('Location:' . $auth->getAuthSignInWithTransactionUrl('0xDA05625fA8DE0b5a9C3e5b8839099A176f73628e', '1', null, '1'));
+    }
+
     if (isset($_POST['destroy_session'])) {
         $auth->logout();
         session_destroy();
@@ -88,6 +101,26 @@
 
     if (isset($_GET['userInfo']) && $auth) {
         $user = $auth->getUserInfo();
+    }
+
+    if (isset($_GET['setDataEmail']) && $auth) {
+        $storageEmail->setData($auth->getAccessToken(), 'key_data_1', 'data_1');
+    }
+
+    if (isset($_GET['getDataEmail']) && $auth) {
+        var_dump($storageEmail->getData($auth->getAccessToken(), 'key_data_1'));
+    }
+
+    if (isset($_GET['getKeysEmail']) && $auth) {
+        var_dump($storageEmail->getKeys($auth->getAccessToken()));
+    }
+
+    if (isset($_GET['getKeysSharedEmail']) && $auth) {
+        var_dump($storageEmail->getKeysListShared($auth->getAccessToken()));
+    }
+
+    if (isset($_GET['deleteKeyEmail']) && $auth) {
+        var_dump($storageEmail->deleteKey($auth->getAccessToken(), 'key_data_1'));
     }
 
     if (isset($_GET['logout']) && $auth) {
@@ -126,6 +159,14 @@
             Go to Role Managment
         </button>
         <br>
+        <br>
+
+        <form action="" method="get">
+            <input type="hidden" name="loginTransaction" value="0"/>
+            <button type="submit" class="button-custom" style="width: 20%;">
+                Web 2.0 Sign in with transaction
+            </button>
+        </form>
         <br>
 
         <form action="" method="get">
@@ -213,6 +254,34 @@
             </form>
             <br>
             <form action="" method="get">
+                <input type="hidden" name="setDataEmail" value="1"/>
+                <button type="submit" class="button-custom" style="width: 20%;">
+                    Set Data
+                </button>
+            </form>
+            <br>
+            <form action="" method="get">
+                <input type="hidden" name="getDataEmail" value="1"/>
+                <button type="submit" class="button-custom" style="width: 20%;">
+                    Get Data
+                </button>
+            </form>
+            <br>
+            <form action="" method="get">
+                <input type="hidden" name="getKeysEmail" value="1"/>
+                <button type="submit" class="button-custom" style="width: 20%;">
+                    Get Keys
+                </button>
+            </form>
+            <br>
+            <form action="" method="get">
+                <input type="hidden" name="getKeysSharedEmail" value="1"/>
+                <button type="submit" class="button-custom" style="width: 20%;">
+                    Get Keys Shared
+                </button>
+            </form>
+            <br>
+            <form action="" method="get">
                 <input type="hidden" name="logout" value="1"/>
                 <button type="submit" class="button-custom" style="width: 20%;">
                     Logout
@@ -234,6 +303,46 @@
                 <input type="hidden" name="userInfo" value="1"/>
                 <button disabled type="submit" class="button-custom" style="width: 20%;">
                     Show User Info
+                </button>
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            </form>
+            <br>
+            <form action="" method="get">
+                <input type="hidden" name="setDataEmail" value="1"/>
+                <button disabled type="submit" class="button-custom" style="width: 20%;">
+                    Set Data
+                </button>
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            </form>
+            <br>
+            <form action="" method="get">
+                <input type="hidden" name="getDataEmail" value="1"/>
+                <button disabled type="submit" class="button-custom" style="width: 20%;">
+                    Get Data
+                </button>
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            </form>
+            <br>
+            <form action="" method="get">
+                <input type="hidden" name="getKeysEmail" value="1"/>
+                <button disabled type="submit" class="button-custom" style="width: 20%;">
+                    Get Keys
+                </button>
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            </form>
+            <br>
+            <form action="" method="get">
+                <input type="hidden" name="getKeysSharedEmail" value="1"/>
+                <button disabled type="submit" class="button-custom" style="width: 20%;">
+                    Get Keys Shared
                 </button>
                 <div style="color: orange; margin-left: 10px;">
                     Please sign in first to make requests
