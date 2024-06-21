@@ -29,6 +29,7 @@ const WalletFamily = {
 };
 
 const WalletGetMode = {
+    AUTO_WALLET_GET : 0,
     WALLET_GET_FAST : 2,
     WALLET_GET_FULL : 3
 };
@@ -113,6 +114,44 @@ class ClientInfoRS256 extends ClientInfo {
     }
 }
 
+class TransactionData {
+    constructor(addressTo,
+                chainId,
+                addressFrom = null,
+                value = null,
+                data = null,
+                gas = null,
+                nonce = null
+    ) {
+        this.to = addressTo;
+        this.chain = chainId;
+        if(addressFrom != null) {
+            this.from = from;
+        }
+        if(value) {
+            this.value = value;
+        }
+        if(data) {
+            this.data = data;
+        }
+        if(gas) {
+            this.gas = gas;
+        }
+        if(nonce) {
+            this.nonce = nonce;
+        }
+    }
+
+    isValid() {
+        if(!parseInt(this.to)) return false;
+        if(this.from != undefined && !parseInt(this.from)) return false;
+        if(this.value != undefined && isNaN(this.value)) return false;
+        if(this.data == undefined && this.value == undefined) return false;
+        if(this.data != undefined && !parseInt(this.data)) return false;
+        return true;
+    }
+}
+
 class HyperIDSDK{
     constructor(clientInfo, infrastructureType) {
         this.auth = new Auth(clientInfo, infrastructureType);
@@ -150,6 +189,9 @@ class Auth {
         this.refreshToken = "";
         this.discover = null;
         this.events = {};
+        this.transactionResult = null;
+        this.transactionResultDesc = null;
+        this.transactionHash = null;
     }
 
     #getDecodedToken(_token) {
@@ -316,6 +358,45 @@ class Auth {
         return `${this.discover.authorization_endpoint}?${queryString}`;
     }
 
+    startSignInWithTransaction(addressTo,
+        chain,
+        addressFrom=null,
+        value=null,
+        data=null,
+        gas=null,
+        nonce=null,
+        scopes=null,
+        state=null,
+    ) {
+        const params = {
+            response_type: "code",
+            client_id: this.clientInfo.clientId,
+            redirect_uri: this.clientInfo.redirectUri,
+            scope: scopes,
+            flow_mode: AuthorizationFlowMode.SIGN_IN_WEB2
+        };
+
+        if(scopes) {
+            params.scope = scopes;
+        } else {
+            const combinedScopes = new Set([...this.discover.client_scopes_optional, ...this.discover.client_scopes_default]);
+            params.scope = Array.from(combinedScopes).join(' '); 
+        }
+
+        if(state) {
+            params.state = state;
+        }
+
+        let transaction = new TransactionData(addressTo, chain, data, addressFrom, value, gas, nonce);
+        if(!transaction.isValid()) throw new Error("Transaction not valid.");
+        params.transaction = JSON.stringify(transaction);
+
+        const queryString = Object.entries(params)
+        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+        .join('&');
+        return `${this.discover.authorization_endpoint}?${queryString}`;
+    }
+
     startSignInWeb2(verificationLevel=null, state=null, scopes=null) {
         return this.getAuthorizationUrl(AuthorizationFlowMode.SIGN_IN_WEB2,
             scopes,
@@ -361,7 +442,18 @@ class Auth {
                 walletFamily,
                 null)
     }
-            
+
+    startSignInAutoWalletGet(state=null,
+        scopes=null) {
+            return this.getAuthorizationUrl(AuthorizationFlowMode.SIGN_IN_WALLET_GET,
+                scopes,
+                state,
+                null,
+                WalletGetMode.AUTO_WALLET_GET,
+                null,
+                null)
+    }
+
     startSignInByIdentityProvider(identityProvider,
                                   verificationLevel=null,
                                   state=null,
@@ -535,6 +627,17 @@ class Auth {
             throw error;
         }
         const code = urlParams.get('code');
+        if(urlParams.get('transaction_result')) {
+            this.transactionResult = urlParams.get('transaction_result');
+            this.transactionResultDesc = urlParams.get('transaction_result_description');
+            if(this.transactionResult == '0') {
+                this.transactionHash = urlParams.get('transaction_hash');
+            }
+        } else {
+            this.transactionResult = null;
+            this.transactionResultDesc = null;
+            this.transactionHash = null;
+        }
         if (code) {
             try {
                 this.exchangeCodeToToken(code);
@@ -1674,6 +1777,15 @@ class HyperIDStorageIdp {
     }
 };
 
+const UserWalletsGetResult = {
+	FAIL_BY_INVALID_PARAMETERS			: -5,
+	FAIL_BY_SERVICE_TEMPORARY_NOT_VALID	: -4,
+	FAIL_BY_ACCESS_DENIED				: -3,
+	FAIL_BY_TOKEN_EXPIRED				: -2,
+	FAIL_BY_TOKEN_INVALID				: -1,
+	SUCCESS								: 0
+}
+
 const UserDataByWalletSetResult = {
 	FAIL_BY_KEY_INVALID					: -8,
 	FAIL_BY_KEY_ACCESS_DENIED			: -7,
@@ -1719,9 +1831,55 @@ const UserDataKeysByWalletDeleteResult = {
 	SUCCESS_NOT_FOUND					: 1
 }
 
+class WalletData {
+    constructor(address,
+                chain,
+                isPublic = true
+    ) {
+        this.address = address;
+        this.chain = chain;
+        this.isPublic = isPublic;
+    }
+}
+
 class HyperIDStorageWallet {
     constructor(restApiEndpoint) {
         this.restApiEndpoint = restApiEndpoint;
+    }
+
+    async getWallets(accessToken) {
+        try {
+            const response = await fetch(this.restApiEndpoint + "/user-wallets/get", {
+                method: 'POST',
+                headers: {'Accept': 'application/json',
+                    'Content-Type':'application/json',
+                    'Authorization': "Bearer " + accessToken
+                }
+            });
+            if(response.status >= 200 && response.status <= 299) {
+                const data = await response.json();
+                if(data.result !== UserWalletsGetResult.SUCCESS) {
+                    switch (data.result) {
+                        case UserWalletsGetResult.FAIL_BY_KEY_ACCESS_DENIED: throw new Error("Key access violation: Your permissions are not sufficient.")
+                        case UserWalletsGetResult.FAIL_BY_TOKEN_INVALID: throw new Error("Access token is expired. Please sign in first.");
+                        case UserWalletsGetResult.FAIL_BY_TOKEN_EXPIRED: throw new Error("Access token is expired. Please sign in first.");
+                        case UserWalletsGetResult.FAIL_BY_ACCESS_DENIED: throw new Error("Access token is expired. Please sign in first.");
+                        default : throw new Error("Server Under maintenance. Please try again later.");
+                    }
+                }
+                let wallets = new Array();
+                for(let i = 0; i < data.wallets_public.length; i++) {
+                    wallets.push(new WalletData(data.wallets_public[i].address, data.wallets_public[i].chain));
+                }
+                for(let i = 0; i < data.wallets_private.length; i++) {
+                    wallets.push(new WalletData(data.wallets_private[i].address, data.wallets_private[i].chain, false));
+                }
+                return wallets;
+            }
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
     }
 
     async setData(accessToken,

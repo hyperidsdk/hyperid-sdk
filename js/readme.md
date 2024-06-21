@@ -66,6 +66,39 @@ let url = sdk.auth.startSignInWalletGet();
 location.href = url;
 ```
 
+Sign in with wallet get without user interaction (return default wallet for user):
+ ```js
+let url = sdk.auth.startSignInAutoWalletGet();
+window.location.href = url;
+```
+
+Sign in with transaction, returns `transaction_result` and `transaction_hash` (*if result == 0*) as `GET` parameters.\
+Mandatory parameters is:
+- `addressTo` - wallet address where to send tokens (hex string)
+- `chain` - chain of token
+Optional:
+- `addressFrom` - user wallet address to transfer tokens from (hex string)
+- `value` - value of tokens to transfer (value or data should be present)
+- `data` - data to make transaction in hex (value or data should be present)
+- `gas`
+- `nonce`
+
+ ```js
+let url = sdk.auth.startSignInWithTransaction("0x501Fc2e1854cef866A084bCCbABbf68401FCaCb0", "1", null/*addressFrom*/, "10");
+window.location.href = url;
+```
+
+To check transaction status, after receiving redirected url use:
+
+ ```js
+let transactionResult = sdk.auth.transactionResult;
+let transactionResultDesc = sdk.auth.transactionResultDesc;
+let transactionHash = null;
+if(transactionResult == '0') { /* Success */
+    transactionHash = sdk.auth.transactionHash;
+}
+```
+
 Sign in using identity provider:
  ```js
 let urlIdp = sdk.auth.startSignInByIdentityProvider('google');
@@ -385,6 +418,17 @@ try{
 ```
 
 ### Storage by wallet
+
+Get Wallets:\
+Allows you to get all the wallets associated with user and current client.
+```js
+let wallets = null;
+try{
+    wallets = await sdk.storageWallet.getWallets(sdk.auth.getAccessToken());
+} catch(error) {
+    // error handle
+}
+```
 
 Allows you to setup any data assosiated with wallet.\
 Function takes 4 additional arguments: wallet(str), key(str), value(str) and accessScope(userDataAccessScope). You can specify two types of access scope: public(1) or private(0).

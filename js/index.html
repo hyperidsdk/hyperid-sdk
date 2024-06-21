@@ -20,6 +20,12 @@
         </button>
     </form>
     <br>
+    <form onclick="loginTransaction()" style="width: 25%;">
+        <button type="button" style="width: 100%;">
+            Sign in with transaction
+        </button>
+    </form>
+    <br>
     <form onclick="userInfo()" style="width: 25%;">
         <button type="button" style="width: 100%;">
             User Info
@@ -150,6 +156,10 @@
         
         function loginWeb3() {
             window.location.href = sdk.auth.startSignInWeb3();
+        }
+
+        function loginTransaction() {
+            window.location.href = sdk.auth.startSignInWithTransaction("0x501Fc2e1854cef866A084bCCbABbf68401FCaCb0", "1", null, "1");
         }
 
         function userInfo() {
