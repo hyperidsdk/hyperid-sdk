@@ -38,6 +38,11 @@ namespace HyperId.SDK.Authorization
         /// 
         /// </summary>
         /// <returns>Url to authorization start in browser.</returns>
+        string StartAutoWalletGet();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>Url to authorization start in browser.</returns>
         string StartSignInGuestUpgrade();
         /// <summary>
         /// 
@@ -46,6 +51,26 @@ namespace HyperId.SDK.Authorization
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">if <paramref name="identyProvider"/> is null</exception>
         string StartSignInIdentityProvider([NotNull]string identyProvider);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="addressTo"></param>
+        /// <param name="chainId"></param>
+        /// <param name="addressFrom"></param>
+        /// <param name="value"></param>
+        /// <param name="data"></param>
+        /// <param name="gas"></param>
+        /// <param name="nonce"></param>
+        /// <returns></returns>
+        /// <exception cref="HyperIDSDKException">if transaction data is invalid</exception>
+        string StartSignInWithTransaction([NotNull] string addressTo,
+                                          [NotNull] string chainId,
+                                          [AllowNull] string? addressFrom = null,
+                                          [AllowNull] string? value = null,
+                                          [AllowNull] string? data = null,
+                                          [AllowNull] string? gas = null,
+                                          [AllowNull] string? nonce = null);
 
         /// <summary>
         /// 
@@ -83,5 +108,8 @@ namespace HyperId.SDK.Authorization
 
         string? AccessToken();
         string? RefreshToken();
+        string? TransactionResult();
+        string? TransactionResultDesc();
+        string? TransactionHash();
     }
 }//namespace HyperId.SDK.Authorization

@@ -23,6 +23,7 @@ namespace HyperId.SDK.Authorization
     /// </summary>
     public enum WalletGetMode
     {
+        AUTO = 0,
         FAST = 2,
         FULL = 3
     }

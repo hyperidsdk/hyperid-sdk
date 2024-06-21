@@ -32,6 +32,11 @@ namespace HyperId.SDK.Storage
 
 
     #region Wallet
+    public enum UserWalletsGetResult
+    {
+        SUCCESS,
+    }
+
     public enum DataSetByWalletResult
     {
         SUCCESS,

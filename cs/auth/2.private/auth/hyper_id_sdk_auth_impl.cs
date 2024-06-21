@@ -28,6 +28,9 @@ namespace HyperId.Private
         private Discovery? _discover;
         private string? _accessToken;
         private string? _refreshToken;
+        private string? _transactionResult;
+        private string? _transactionResultDesc;
+        private string? _transactionHash;
         private RequestProcessor transport = new RequestProcessor();
         #endregion
 
@@ -122,6 +125,11 @@ namespace HyperId.Private
                 walletGetMode: walletGetMode,
                 walletFamily: walletFamilyId);
         }
+        string IHyperIDSDKAuth.StartAutoWalletGet()
+        {
+            return AuthorizationUrlPrepare(flowMode: FlowMode.WALLET_GET,
+                walletGetMode: WalletGetMode.AUTO);
+        }
         string IHyperIDSDKAuth.StartSignInGuestUpgrade()
         {
             return AuthorizationUrlPrepare(flowMode: FlowMode.UPGRADE_FROM_GUEST);
@@ -132,6 +140,34 @@ namespace HyperId.Private
 
             return AuthorizationUrlPrepare(flowMode: FlowMode.IDENTITY_PROVIDER,
                 identityProvider: identyProvider);
+        }
+        string IHyperIDSDKAuth.StartSignInWithTransaction([NotNull] string addressTo,
+                                                          [NotNull] string chainId,
+                                                          [AllowNull] string? addressFrom = null,
+                                                          [AllowNull] string? value = null,
+                                                          [AllowNull] string? data = null,
+                                                          [AllowNull] string? gas = null,
+                                                          [AllowNull] string? nonce = null)
+        {
+            EnsureInitialised();
+
+            UriBuilder uriBuilder = new UriBuilder(_discover!.AuthEndpoint);
+            NameValueCollection query = HttpUtility.ParseQueryString("");
+
+            query.Add("flow_mode", ((int)FlowMode.WEB2_SIGN_IN).ToString());
+            query.Add("response_type", "code");
+            query.Add("scope", string.Join(' ', _discover.Scopes()));
+            query.Add("client_id", _clientInfo.ClientId);
+            query.Add("redirect_uri", _clientInfo.RedirectUri);
+
+            TransactionData transaction = new TransactionData(addressTo, chainId, addressFrom, value, data, gas, nonce);
+            if (!transaction.IsValid()) throw new HyperIDSDKException("Transaction data invalid.");
+
+            query.Add("transaction", JsonSerializer.Serialize(transaction));
+
+            uriBuilder.Query = query.ToString();
+
+            return uriBuilder.ToString();
         }
         #endregion
 
@@ -162,7 +198,23 @@ namespace HyperId.Private
                 throw new HyperIDSDKException("Redirect URL contain invalid code");
             }
 
-            
+            string? transactionResult = queryString["transaction_result"];
+            if (!string.IsNullOrWhiteSpace(_transactionResult))
+            {
+                _transactionResult = transactionResult;
+                _transactionResultDesc = queryString["transaction_result_description"];
+                if (_transactionResult == "0")
+                {
+                    _transactionHash = queryString["code"];
+                }
+            }
+            else
+            {
+                _transactionResult = null;
+                _transactionResultDesc = null;
+                _transactionHash = null;
+            }
+
             List<KeyValuePair<string, string>> queryParams = AssertionPrepare();
             queryParams.Add(new KeyValuePair<string, string>("grant_type", JwtNames.QueryValueAuthorizationCode));
             queryParams.Add(new KeyValuePair<string, string>("redirect_uri", _clientInfo.RedirectUri));
@@ -562,5 +614,8 @@ namespace HyperId.Private
 
         public string? AccessToken() => _accessToken;
         public string? RefreshToken() => _refreshToken;
+        public string? TransactionResult() => _transactionResult;
+        public string? TransactionResultDesc() => _transactionResultDesc;
+        public string? TransactionHash() => _transactionHash;
     }
 }//namespace HyperId.Private

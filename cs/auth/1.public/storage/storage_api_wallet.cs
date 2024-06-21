@@ -11,6 +11,13 @@ namespace HyperId.SDK.Storage
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<WalletsGetResult> GetUserWalletsAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="walletAddress"></param>
         /// <param name="key"></param>
         /// <param name="value"></param>

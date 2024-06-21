@@ -9,6 +9,27 @@ namespace HyperId.Private
         public required int Result { get; set; }
     }
 
+    internal class WalletDataJson
+    {
+        [JsonPropertyName("address")]
+        public string? Address { get; set; }
+
+        [JsonPropertyName("chain")]
+        public string? Chain { get; set; }
+    }
+
+        internal class UserWalletsGetJson
+    {
+        [JsonPropertyName("result")]
+        public required int Result { get; set; }
+
+        [JsonPropertyName("wallets_public")]
+        public List<WalletDataJson>? WalletsPublic { get; set; }
+
+        [JsonPropertyName("wallets_private")]
+        public List<WalletDataJson>? WalletsPrivate { get; set; }
+    }
+
     internal class UserDataGetEntryJson
     {
         [JsonPropertyName("value_key")]

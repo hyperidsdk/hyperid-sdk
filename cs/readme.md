@@ -77,14 +77,61 @@ catch(Exception ex)
 {
         //error processing
 }
-
 ```
+
+Sign in with wallet get without user interaction (return default wallet for user):
+```C#
+try
+{
+       string url = sdkAuth.StartAutoWalletGet();
+}
+catch(Exception ex)
+{
+        //error processing
+}
+```
+
+Sign in with transaction, returns `transaction_result` and `transaction_hash` (*if result == 0*) as `GET` parameters.\
+Mandatory parameters is:
+- `addressTo` - wallet address where to send tokens (hex string)
+- `chain` - chain of token
+Optional:
+- `addressFrom` - user wallet address to transfer tokens from (hex string)
+- `value` - value of tokens to transfer (value or data should be present)
+- `data` - data to make transaction in hex (value or data should be present)
+- `gas`
+- `nonce`
+
+```C#
+try
+{
+       string url = sdkAuth.StartSignInWithTransaction(addressTo = "0x501Fc2e1854cef866A084bCCbABbf68401FCaCb0",
+                                                       chainId = "1",
+                                                       value = "0.01");
+}
+catch(Exception ex)
+{
+        //error processing
+}
+```
+
+To check transaction status, after receiving redirected url use:
+
+```C#
+string? transactionResult = sdkAuth.TransactionResult();
+string? transactionResultDesc = sdkAuth.TransactionResultDesc();
+string? transactionHash = null;
+if(transactionResult == "0") { /* Success */
+    transactionHash = sdkAuth.TransactionHash();
+}
+```
+
 Sign in using identity provider:
- ```C#
- try
- {
-        string url = sdkAuth.StartSignInIdentityProvider("params");
- }
+```C#
+try
+{
+       string url = sdkAuth.StartSignInIdentityProvider("params");
+}
 catch(Exception ex)
 {
         //error processing
@@ -491,6 +538,20 @@ catch(Exception ex)
 ```
 
 ### Storage by wallet
+
+Get Wallets:\
+Allows you to get all the wallets associated with user and current client.
+```C#
+try
+{
+        IStorageApiWallet storageByWallet = sdk.getStorage().StorageByWallet();
+        WalletsGetResult result = await storageByWallet.GetUserWalletsAsync();
+}
+catch(Exception ex)
+{
+        //error processing
+}
+```
 
 Allows you to setup any data assosiated with wallet.
 Function takes 4 arguments: walletAddress(String), key(String), value(String) and accessType(UserDataAccessScope). You can specify two types of accessType: public or private.

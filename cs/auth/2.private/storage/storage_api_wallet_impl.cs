@@ -23,6 +23,58 @@ namespace HyperId.SDK.Storage
             RestApi = restApi;
         }
 
+        #region Get User Wallets
+        async Task<WalletsGetResult> IStorageApiWallet.GetUserWalletsAsync(CancellationToken cancellationToken)
+        {
+            RestApiRequest request = new RestApiRequest(RestApi,
+                "/user-wallets/get",
+                null);
+
+            return await GetUserWalletsAsync(request, cancellationToken);
+        }
+        private async Task<WalletsGetResult> GetUserWalletsAsync(RestApiRequest restApiRequest,
+            CancellationToken cancellationToken)
+        {
+            HttpResponseMessage response = await restApiRequest.StartAsync(cancellationToken);
+            UserWalletsGetJson? jsonResponse;
+            try
+            {
+                jsonResponse = await response.Content.ReadFromJsonAsync<UserWalletsGetJson>(options: null, cancellationToken);
+            }
+            catch (Exception)
+            {
+                throw new HyperIDSDKExceptionUnderMaintenace();
+            }
+
+            if (jsonResponse == null
+                || jsonResponse.Result == -3 || jsonResponse.Result == -2 || jsonResponse.Result == -1) // access token 
+            {
+                return await GetUserWalletsAsync(restApiRequest, cancellationToken);
+            }
+            else if (jsonResponse.Result == 0)      //success
+            {
+                List<WalletData> wallets = new List<WalletData>();
+                foreach (WalletDataJson walletPublic in jsonResponse.WalletsPublic)
+                {
+                    wallets.Add(new WalletData(walletPublic.Address, walletPublic.Chain));
+                }
+                foreach (WalletDataJson walletPrivate in jsonResponse.WalletsPrivate)
+                {
+                    wallets.Add(new WalletData(walletPrivate.Address, walletPrivate.Chain, false));
+                }
+                return new WalletsGetResult(UserWalletsGetResult.SUCCESS,
+                        wallets);
+            }
+            else
+            {
+                // -4 fail_by_service_temporary_not_valid
+                // -5 fail_by_invalid_parameters
+
+                throw new HyperIDSDKExceptionUnderMaintenace();
+            }
+        }
+        #endregion
+
         #region Data Set
         async Task<DataSetByWalletResult> IStorageApiWallet.DataSetAsync([NotNull] string walletAddress, 
             [NotNull] string key,
