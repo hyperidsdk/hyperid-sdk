@@ -520,10 +520,10 @@ class hyperIdClientController
 
     function logoutFromHID($userId) {
         try {
-            $auth = self::getAuth(self::getAuthRefreshToken());
+            $auth = get_option($userId.'hid_auth');
             if($auth) {
                 $auth->logout();
-                delete_option(wp_get_current_user()->ID.'hid_auth');
+                delete_option($userId.'hid_auth');
             }
         } catch(Exception $e) {
         }
