@@ -110,6 +110,15 @@ function echoRoles($rolesGetResponse) {
                     </form>
                 </td>
                 <td style='background:transparent;'>
+                    <form method='get' action=''>
+                        <input type='hidden' name='page' value='HyperID client configuration for authentication' />
+                        <input type='hidden' name='tab' value='hidRoleAttributeManagment' />
+                        <input type='hidden' name='roleId' value='{$roleItem['id']}' />
+                        <input type='hidden' name='roleName' value='{$roleItem['name']}' />
+                        <input class='button-custom' type='submit' id='attributeManagment' value='Attributes Manage' style='margin-top: 0px'/>
+                    </form>
+                </td>
+                <td style='background:transparent;'>
                     <form method='post' action=''>
                         <input type='hidden' name='action' value='hidRoleDelete' />
                         <input type='hidden' name='roleId' value='{$roleItem['id']}' />

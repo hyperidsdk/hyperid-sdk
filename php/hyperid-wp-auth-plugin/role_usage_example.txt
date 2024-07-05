@@ -1,4 +1,9 @@
 //**********************************************************************************************************************
+//	Use information in this file or copy `functions_hid.php`  into wp-includes (remove extension txt) and include into 
+//	`function.php` WordPress file
+//----------------------------------------------------------------------------------------------------------------------
+
+//**********************************************************************************************************************
 //	wp-includes->functions.php
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -103,11 +108,11 @@ $roleId2    = '';
 $roleId3    = '';
 if($response['result'] == RolesGetResult::SUCCESS) {
     $roleId2Ind = array_search($role2Name, array_column($response['roles'], 'name'));
-    if($roleId2Ind) {
+    if(is_numeric($roleId2Ind)) {
         $roleId2 = $response['roles'][$roleId2Ind]['id'];
     }
     $roleId3Ind = array_search($role3Name, array_column($response['roles'], 'name'));
-    if($roleId3Ind) {
+    if(is_numeric($roleId3Ind)) {
         $roleId3 = $response['roles'][$roleId3Ind]['id'];
     }
 }

@@ -209,6 +209,108 @@
         header( "Location: {$_SERVER['REQUEST_URI']}", true, 303 );
         exit();
     }
+
+    $roleIdAttributeReplace = '';
+    $attributeKeyReplace    = '';
+    $attributeValueReplace  = '';
+    $resultAttributeReplace = null;
+    if (isset($_POST['attributeReplace']) && $service && $roleManager) {
+        $roleIdAttributeReplace = $_POST['roleId'];
+        $attributeKeyReplace    = $_POST['attributeKey'];
+        $attributeValueReplace  = $_POST['attributeValue'];
+        if(!empty($roleIdAttributeReplace) && !empty($attributeKeyReplace) && !empty($attributeValueReplace)) {
+            try {
+                $responseAttributeReplace   = $roleManager->roleAttributeReplace($service->getAccessToken(), $roleIdAttributeReplace, $attributeKeyReplace, $attributeValueReplace);
+                $resultAttributeReplace     = $responseAttributeReplace['result'];
+            } catch (Exception $e) {
+                echo "<h1>$e</h1>";
+            }
+            $_SESSION["postdata"] = array('roleIdAttributeReplace'  => $roleIdAttributeReplace,
+                                          'attributeKeyReplace'     => $attributeKeyReplace,
+                                          'attributeValueReplace'   => $attributeValueReplace,
+                                          'resultAttributeReplace'  => $resultAttributeReplace);
+        }
+        header( "Location: {$_SERVER['REQUEST_URI']}", true, 303 );
+        exit();
+    }
+
+    $roleIdAttributeGet     = '';
+    $attributeKeyGet        = '';
+    $resultAttributeGet     = null;
+    $resultAttributeGetValue= '';
+    if (isset($_POST['attributeGet']) && $service && $roleManager) {
+        $roleIdAttributeGet = $_POST['roleId'];
+        $attributeKeyGet    = $_POST['attributeKey'];
+        if(!empty($roleIdAttributeGet) && !empty($attributeKeyGet)) {
+            try {
+                $responseAttributeGet       = $roleManager->roleAttributeGet($service->getAccessToken(), $roleIdAttributeGet, $attributeKeyGet);
+                $resultAttributeGet         = $responseAttributeGet['result'];
+                $resultAttributeGetValue    = $responseAttributeGet['value'];
+            } catch (Exception $e) {
+                echo "<h1>$e</h1>";
+            }
+            $_SESSION["postdata"] = array('roleIdAttributeGet'      => $roleIdAttributeGet,
+                                          'attributeKeyGet'         => $attributeKeyGet,
+                                          'resultAttributeGet'      => $resultAttributeGet,
+                                          'resultAttributeGetValue' => $resultAttributeGetValue);
+        }
+        header( "Location: {$_SERVER['REQUEST_URI']}", true, 303 );
+        exit();
+    }
+
+    $roleIdAttributesGet        = '';
+    $pageOffsetAttributesGet    = 0;
+    $pageSizeAttributesGet      = 10;
+    $resultAttributesGet        = null;
+    $nextPageOffsetAttributesGet= null;
+    $nextPageSizeAttributesGet  = null;
+    $attributesGet              = null;
+    if (isset($_POST['attributesGet']) && $service && $roleManager) {
+        $roleIdAttributesGet = $_POST['roleId'];
+
+        if(!empty($_POST['pageOffset'])) $pageOffsetAttributesGet   = intval($_POST['pageOffset']);
+        if(!empty($_POST['pageSize']))   $pageSizeAttributesGet     = intval($_POST['pageSize']);
+
+        if(!empty($roleIdAttributesGet)) {
+            try {
+                $responseAttributesGet          = $roleManager->roleAttributesGet($service->getAccessToken(), $roleIdAttributesGet, $pageOffsetAttributesGet, $pageSizeAttributesGet);
+                $resultAttributesGet            = $responseAttributesGet['result'];
+                $nextPageOffsetAttributesGet    = $responseAttributesGet['next_page_offset'];
+                $nextPageSizeAttributesGet      = $responseAttributesGet['next_page_size'];
+                $attributesGet                  = $responseAttributesGet['attributes'];
+            } catch (Exception $e) {
+                echo "<h1>$e</h1>";
+            }
+            $_SESSION["postdata"] = array('roleIdAttributesGet'         => $roleIdAttributesGet,
+                                          'resultAttributesGet'         => $resultAttributesGet,
+                                          'nextPageOffsetAttributesGet' => $nextPageOffsetAttributesGet,
+                                          'nextPageSizeAttributesGet'   => $nextPageSizeAttributesGet,
+                                          'attributesGet'               => $attributesGet);
+        }
+        header( "Location: {$_SERVER['REQUEST_URI']}", true, 303 );
+        exit();
+    }
+
+    $roleIdAttributeDelete  = '';
+    $attributeKeyDelete     = '';
+    $resultAttributeDelete  = null;
+    if (isset($_POST['attributeDelete']) && $service && $roleManager) {
+        $roleIdAttributeDelete  = $_POST['roleId'];
+        $attributeKeyDelete     = $_POST['attributeKey'];
+        if(!empty($roleIdAttributeDelete) && !empty($attributeKeyDelete)) {
+            try {
+                $responseAttributeDelete    = $roleManager->roleAttributeDelete($service->getAccessToken(), $roleIdAttributeDelete, $attributeKeyDelete);
+                $resultAttributeDelete      = $responseAttributeDelete['result'];
+            } catch (Exception $e) {
+                echo "<h1>$e</h1>";
+            }
+            $_SESSION["postdata"] = array('roleIdAttributeDelete'   => $roleIdAttributeDelete,
+                                          'attributeKeyDelete'      => $attributeKeyDelete,
+                                          'resultAttributeDelete'   => $resultAttributeDelete);
+        }
+        header( "Location: {$_SERVER['REQUEST_URI']}", true, 303 );
+        exit();
+    }
 ?>
 
     <table style="width: 90%; margin: auto;">
@@ -452,6 +554,106 @@
                     <input type="number" name="pageSize"    value="" class="inputField" placeholder="Input page size (def : 10)"  style="width: 80%; margin-top: 8px" min="10" max="100"/>
                     <button type="submit" class="button-custom" style="width: 80%;">
                         Users By Role Get
+                    </button>
+                </form>
+                <br>
+                <?php
+                if(isset($_SESSION['postdata']) && !empty($_SESSION['postdata']['roleIdAttributeReplace'])) {
+                    $roleIdAttributeReplace = $_SESSION['postdata']['roleIdAttributeReplace'];
+                    $attributeKeyReplace    = $_SESSION['postdata']['attributeKeyReplace'];
+                    $attributeValueReplace  = $_SESSION['postdata']['attributeValueReplace'];
+                    $resultAttributeReplace = $_SESSION['postdata']['resultAttributeReplace'];
+                    echo "Result: ".$resultAttributeReplace->name;
+                    echo "<br>";
+                    echo "Role Id: ".$roleIdAttributeReplace;
+                    unset($_SESSION['postdata']);
+                }
+                ?>
+                <form action="" method="post" style="margin-top: 8px;">
+                    <input type="hidden" name="attributeReplace" value="1"/>
+                    <input type="text"   name="roleId"          value="" class="inputField" placeholder="Input role id"         style="width: 80%;"/>
+                    <input type="text"   name="attributeKey"    value="" class="inputField" placeholder="Input attribute key"   style="width: 80%;"/>
+                    <input type="text"   name="attributeValue"  value="" class="inputField" placeholder="Input attribute value" style="width: 80%;"/>
+                    <button type="submit" class="button-custom" style="width: 80%;">
+                        Role Attribute Replace
+                    </button>
+                </form>
+                <br>
+                <?php
+                if(isset($_SESSION['postdata']) && !empty($_SESSION['postdata']['roleIdAttributeGet'])) {
+                    $roleIdAttributeGet     = $_SESSION['postdata']['roleIdAttributeGet'];
+                    $attributeKeyGet        = $_SESSION['postdata']['attributeKeyGet'];
+                    $resultAttributeGet     = $_SESSION['postdata']['resultAttributeGet'];
+                    $resultAttributeGetValue= $_SESSION['postdata']['resultAttributeGetValue'];
+                    echo "Result: ".$resultAttributeGet->name;
+                    echo "<br>";
+                    echo "Value: ".$resultAttributeGetValue;
+                    echo "<br>";
+                    echo "Role Id: ".$roleIdAttributeGet;
+                    unset($_SESSION['postdata']);
+                }
+                ?>
+                <form action="" method="post" style="margin-top: 8px;">
+                    <input type="hidden" name="attributeGet" value="1"/>
+                    <input type="text"   name="roleId"          value="" class="inputField" placeholder="Input role id"         style="width: 80%;"/>
+                    <input type="text"   name="attributeKey"    value="" class="inputField" placeholder="Input attribute key"   style="width: 80%;"/>
+                    <button type="submit" class="button-custom" style="width: 80%;">
+                        Role Attribute Get
+                    </button>
+                </form>
+                <br>
+                <?php
+                if(isset($_SESSION['postdata']) && !empty($_SESSION['postdata']['roleIdAttributesGet'])) {
+                    $roleIdAttributesGet            = $_SESSION['postdata']['roleIdAttributesGet'];
+                    $resultAttributesGet            = $_SESSION['postdata']['resultAttributesGet'];
+                    $nextPageOffsetAttributesGet    = $_SESSION['postdata']['nextPageOffsetAttributesGet'];
+                    $nextPageSizeAttributesGet      = $_SESSION['postdata']['nextPageSizeAttributesGet'];
+                    $attributesGet                  = $_SESSION['postdata']['attributesGet'];
+                    echo "Result: ".$resultAttributesGet->name;
+                    echo "<br>";
+                    echo "Next Page Offset: ".$nextPageOffsetAttributesGet;
+                    echo "<br>";
+                    echo "Next Page Size: ".$nextPageSizeAttributesGet;
+                    echo "<br>";
+                    echo "Attributes: ";
+                    echo "<br>";
+                    foreach ($attributesGet as &$attributePair) {
+                        echo $attributePair['key']." : ".$attributePair['value'];
+                        echo "<br>";
+                    }
+                    echo "Role Id: ".$roleIdAttributesGet;
+                    unset($_SESSION['postdata']);
+                }
+                ?>
+                <form action="" method="post" style="margin-top: 8px;">
+                    <input type="hidden" name="attributesGet" value="1"/>
+                    <input type="text"   name="roleId"      value="" class="inputField" placeholder="Input role id"                 style="width: 80%;"/>
+                    <input type="number" name="pageOffset"  value="" class="inputField" placeholder="Input page offset (def : 0)"   style="width: 80%; margin-top: 8px" min="0"/>
+                    <input type="number" name="pageSize"    value="" class="inputField" placeholder="Input page size (def : 10)"    style="width: 80%; margin-top: 8px" min="10" max="100"/>
+                    <button type="submit" class="button-custom" style="width: 80%;">
+                        Role Attributes Get
+                    </button>
+                </form>
+                <br>
+                <?php
+                if(isset($_SESSION['postdata']) && !empty($_SESSION['postdata']['roleIdAttributeDelete'])) {
+                    $roleIdAttributeDelete  = $_SESSION['postdata']['roleIdAttributeDelete'];
+                    $attributeKeyDelete     = $_SESSION['postdata']['attributeKeyDelete'];
+                    $resultAttributeDelete  = $_SESSION['postdata']['resultAttributeDelete'];
+                    echo "Result: ".$resultAttributeDelete->name;
+                    echo "<br>";
+                    echo "Attribute: ".$attributeKeyDelete;
+                    echo "<br>";
+                    echo "Role Id: ".$roleIdAttributeDelete;
+                    unset($_SESSION['postdata']);
+                }
+                ?>
+                <form action="" method="post" style="margin-top: 8px;">
+                    <input type="hidden" name="attributeDelete" value="1"/>
+                    <input type="text"   name="roleId"          value="" class="inputField" placeholder="Input role id"         style="width: 80%;"/>
+                    <input type="text"   name="attributeKey"    value="" class="inputField" placeholder="Input attribute key"   style="width: 80%;"/>
+                    <button type="submit" class="button-custom" style="width: 80%;">
+                        Role Attribute Delete
                     </button>
                 </form>
             </th>

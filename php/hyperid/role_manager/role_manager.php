@@ -105,7 +105,8 @@ class RoleManager {
         }
 
         if($responseStatus == 200 || $responseStatus == 400) {
-            return ['result' => UserRoleAttachResult::from($responseJson['result']), 'user_id' => $responseJson['user_id']];
+            return ['result'    => UserRoleAttachResult::from($responseJson['result']),
+                    'user_id'   => UserRoleAttachResult::from($responseJson['result']) == UserRoleAttachResult::SUCCESS ? $responseJson['user_id'] : null];
         }
         throw new ServerErrorException();
     }
@@ -162,6 +163,116 @@ class RoleManager {
                 'next_page_size'    => $responseJson['next_page_size'],
                 'user_ids'          => $responseJson['user_ids'],
             ];
+        }
+        throw new ServerErrorException();
+    }
+
+    /**
+     * @return response{'result' => RoleAttributeReplaceResult}
+     */
+    function roleAttributeReplace(string $accessToken, string $roleId, string $attributeKey, string $attributeValue, bool $isService = true) {
+        $header[]   = 'Authorization: Bearer '.$accessToken;
+        $payload    = [
+            'role_id'   => $roleId,
+            'key'       => $attributeKey,
+            'value'     => $attributeValue,
+        ];
+        $requestUrl = $this->restApiURI.($isService ? '/service/project-role/attribute/replace' : '/admin/project-role/attribute/replace');
+        $response   = httpPostJSON($requestUrl, $payload, $header, $this->requestTimeout);
+
+        $responseStatus = $response['status'];
+        $responseJson   = $response['response'];
+
+        if($responseStatus == 0 && $responseJson == null) {
+            throw new ServerErrorException();
+        }
+
+        if($responseStatus == 200 || $responseStatus == 400) {
+            return ['result' => RoleAttributeReplaceResult::from($responseJson['result'])];
+        }
+        throw new ServerErrorException();
+    }
+
+    /**
+     * @return response{'result' => RoleAttributeGetResult, 'value' => "some_value"}
+     */
+    function roleAttributeGet(string $accessToken, string $roleId, string $attributeKey, bool $isService = true) {
+        $header[]   = 'Authorization: Bearer '.$accessToken;
+        $payload    = [
+            'role_id'   => $roleId,
+            'key'       => $attributeKey,
+        ];
+        $requestUrl = $this->restApiURI.($isService ? '/service/project-role/attribute/get' : '/admin/project-role/attribute/get');
+        $response   = httpPostJSON($requestUrl, $payload, $header, $this->requestTimeout);
+
+        $responseStatus = $response['status'];
+        $responseJson   = $response['response'];
+
+        if($responseStatus == 0 && $responseJson == null) {
+            throw new ServerErrorException();
+        }
+
+        if($responseStatus == 200 || $responseStatus == 400) {
+            return [
+                'result'=> RoleAttributeGetResult::from($responseJson['result']),
+                'value' => $responseJson['value'],
+            ];
+        }
+        throw new ServerErrorException();
+    }
+
+    /**
+     * @return response{'result' => RoleAttributesGetResult, 'next_page_offset' => 0, 'next_page_size' => 100, 'attributes' => {'key'=>'value', ...}}
+     */
+    function roleAttributesGet(string $accessToken, string $roleId, int $pageOffset = 0, int $pageSize = 100, bool $isService = true) {
+        $header[]   = 'Authorization: Bearer '.$accessToken;
+        $payload    = [
+            'role_id'       => $roleId,
+            'page_offset'   => $pageOffset,
+            'page_size'     => $pageSize,
+        ];
+        $requestUrl = $this->restApiURI.($isService ? '/service/project-role/attributes/get' : '/admin/project-role/attributes/get');
+        $response   = httpPostJSON($requestUrl, $payload, $header, $this->requestTimeout);
+
+        $responseStatus = $response['status'];
+        $responseJson   = $response['response'];
+
+        if($responseStatus == 0 && $responseJson == null) {
+            throw new ServerErrorException();
+        }
+
+        if($responseStatus == 200 || $responseStatus == 400) {
+            return [
+                'result'            => RoleAttributesGetResult::from($responseJson['result']),
+                'next_page_offset'  => $responseJson['next_page_offset'],
+                'next_page_size'    => $responseJson['next_page_size'],
+                'attributes'        => $responseJson['attributes'],
+            ];
+        }
+        throw new ServerErrorException();
+    }
+
+    /**
+     * @return response{'result' => RoleAttributeDeleteResult}
+     */
+    function roleAttributeDelete(string $accessToken, string $roleId, string $attributeKey, bool $isService = true) {
+        $header[]   = 'Authorization: Bearer '.$accessToken;
+        $payload    = [
+            'role_id'   => $roleId,
+            'key'       => $attributeKey,
+        ];
+        $requestUrl = $this->restApiURI.($isService ? '/service/project-role/attribute/delete' : '/admin/project-role/attribute/delete');
+        $response   = httpPostJSON($requestUrl, $payload, $header, $this->requestTimeout);
+
+        $responseStatus = $response['status'];
+        $responseJson   = $response['response'];
+
+        if($responseStatus == 0 && $responseJson == null) {
+            throw new ServerErrorException();
+        }
+
+        if($responseStatus == 200 || $responseStatus == 400) {
+            return ['result' => RoleAttributeDeleteResult::from($responseJson['result'])];
         }
         throw new ServerErrorException();
     }

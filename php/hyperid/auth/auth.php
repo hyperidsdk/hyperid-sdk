@@ -17,8 +17,8 @@ class Auth {
     public int                  $requestTimeout;
     public ClientInfo           $clientInfo;
     public Discover             $discover;
-    public ?AuthToken           $accessToken            = null;
-    public ?AuthToken           $refreshToken           = null;
+    public ?AuthToken           $accessToken    = null;
+    public ?AuthToken           $refreshToken   = null;
 
     function __construct(ClientInfo         $clientInfo,
                          string             $refreshToken       = '',
@@ -224,14 +224,42 @@ class Auth {
         }
     }
 
-    function getRefreshToken() {
+    function introspectAccessToken() : array {
+        $payload = [
+            'token_type_hint'   => 'access_token',
+            'token'             => $this->getAccessToken(),
+        ];
+        $this->paramsPrepare($payload);
+        $response       = httpPost($this->discover->introspectionEndpoint, $payload, null, $this->requestTimeout);
+        $responseStatus = $response['status'];
+        $responseJson   = $response['response'];
+
+        if($responseStatus == 0 && $responseJson == null) {
+            throw new ServerErrorException();
+        }
+
+        if($responseStatus >= 200 && $responseStatus < 300) {
+            if(!$responseJson['active']) {
+                throw new AccessTokenExpiredException();
+            }
+            return $responseJson;
+        } else if($responseStatus >= 400 && $responseStatus < 500) {
+            $this->handleOAuthError($responseJson['error']);
+        } else if($responseStatus >= 500 && $responseStatus < 600) {
+            throw new ServerErrorException();
+        } else {
+            throw new UnknownErrorException();
+        }
+    }
+
+    function getRefreshToken() : string {
         if($this->refreshToken && !$this->refreshToken->isExpired()) {
             return $this->refreshToken->token;
         }
         throw new RefreshTokenExpiredException();
     }
 
-    function getAccessToken() {
+    function getAccessToken() : string {
         if($this->accessToken && !$this->accessToken->isExpired()) {
             return $this->accessToken->token;
         }

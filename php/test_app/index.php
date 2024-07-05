@@ -123,8 +123,27 @@
         var_dump($storageEmail->deleteKey($auth->getAccessToken(), 'key_data_1'));
     }
 
+    if (isset($_GET['introspect']) && $auth) {
+        $introspect = null;
+        try{
+            $introspect = $auth->introspectAccessToken();
+        } catch(Exception $e) {
+            if($e instanceof AccessTokenExpiredException){
+                try {
+                    $auth->refreshTokens();
+                } catch (Exception $e) {
+                    //var_dump($e);
+                }
+            }
+        }
+        if($introspect) {
+            var_dump($introspect);
+        } else {
+            echo "Need login";
+        }
+    }
+
     if (isset($_GET['logout']) && $auth) {
-        $auth = $auth;
         $auth->logout();
     }
 
@@ -282,6 +301,13 @@
             </form>
             <br>
             <form action="" method="get">
+                <input type="hidden" name="introspect" value="1"/>
+                <button type="submit" class="button-custom" style="width: 20%;">
+                    Introspect
+                </button>
+            </form>
+            <br>
+            <form action="" method="get">
                 <input type="hidden" name="logout" value="1"/>
                 <button type="submit" class="button-custom" style="width: 20%;">
                     Logout
@@ -343,6 +369,16 @@
                 <input type="hidden" name="getKeysSharedEmail" value="1"/>
                 <button disabled type="submit" class="button-custom" style="width: 20%;">
                     Get Keys Shared
+                </button>
+                <div style="color: orange; margin-left: 10px;">
+                    Please sign in first to make requests
+                </div>
+            </form>
+            <br>
+            <form action="" method="get">
+                <input type="hidden" name="introspect" value="1"/>
+                <button disabled type="submit" class="button-custom" style="width: 20%;">
+                    Introspect
                 </button>
                 <div style="color: orange; margin-left: 10px;">
                     Please sign in first to make requests

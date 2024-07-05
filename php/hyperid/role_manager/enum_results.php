@@ -60,4 +60,42 @@ enum UsersByRoleGetResult : int {
 	case SUCCESS								= 0;
 }
 
+enum RoleAttributeReplaceResult : int {
+	case FAIL_BY_ROLE_ATTRIBUTES_LIMIT_REACHED	= -6;
+	case FAIL_BY_INVALID_PARAMETERS				= -5;
+	case FAIL_BY_SERVICE_TEMPORARY_NOT_VALID	= -4;
+	case FAIL_BY_ACCESS_DENIED					= -3;
+	case FAIL_BY_TOKEN_EXPIRED					= -2;
+	case FAIL_BY_TOKEN_INVALID					= -1;
+	case SUCCESS								= 0;
+}
+
+enum RoleAttributeGetResult : int {
+	case FAIL_BY_INVALID_PARAMETERS				= -5;
+	case FAIL_BY_SERVICE_TEMPORARY_NOT_VALID	= -4;
+	case FAIL_BY_ACCESS_DENIED					= -3;
+	case FAIL_BY_TOKEN_EXPIRED					= -2;
+	case FAIL_BY_TOKEN_INVALID					= -1;
+	case SUCCESS								= 0;
+	case SUCCESS_NOT_FOUND						= 1;
+}
+
+enum RoleAttributesGetResult : int {
+	case FAIL_BY_INVALID_PARAMETERS				= -5;
+	case FAIL_BY_SERVICE_TEMPORARY_NOT_VALID	= -4;
+	case FAIL_BY_ACCESS_DENIED					= -3;
+	case FAIL_BY_TOKEN_EXPIRED					= -2;
+	case FAIL_BY_TOKEN_INVALID					= -1;
+	case SUCCESS								= 0;
+}
+
+enum RoleAttributeDeleteResult : int {
+	case FAIL_BY_INVALID_PARAMETERS				= -5;
+	case FAIL_BY_SERVICE_TEMPORARY_NOT_VALID	= -4;
+	case FAIL_BY_ACCESS_DENIED					= -3;
+	case FAIL_BY_TOKEN_EXPIRED					= -2;
+	case FAIL_BY_TOKEN_INVALID					= -1;
+	case SUCCESS								= 0;
+}
+
 ?>

@@ -274,3 +274,126 @@ tbody tr td:first-child {
         font-size: 16px;
     }
 }
+
+.pageButton {
+    min-width: 25px;
+    min-height: 25px;
+    padding: 0px;
+}
+
+/* Role Attribute Edit */
+.overlay-container { 
+    z-index: 100;
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0, 0, 0, 0.6); 
+    justify-content: center; 
+    align-items: center; 
+    opacity: 0; 
+    transition: opacity 0.3s ease; 
+}
+
+.popup-box {
+    background: #fff; 
+    padding: 24px; 
+    border-radius: 12px; 
+    box-shadow: 0 0 20px rgba(5, 5, 25, 0.5); 
+    width: 40%; 
+    text-align: center; 
+    opacity: 0; 
+    transform: scale(0.8); 
+    animation: fadeInUp 0.2s ease-out forwards; 
+}
+
+.attributeValueCreate {
+    width: 100%;
+    height:200px;
+
+    resize: none;
+}
+
+.attributeValueEdit {
+    display: block;
+    margin:auto;
+    width: 80%;
+    height:200px;
+
+    resize: none;
+}
+
+.attributeValueCreate:hover,
+.attributeValueCreate:active,
+.attributeValueCreate:focus,
+.attributeValueEdit:hover,
+.attributeValueEdit:active,
+.attributeValueEdit:focus {
+    border-color: #75CBDC;
+    border-width: 2px;
+}
+
+.attributeValue {
+    font-size: 16px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.attributeValueCreate::-webkit-scrollbar,
+.attributeValueEdit::-webkit-scrollbar,
+.attributeValue::-webkit-scrollbar {
+    border-radius: 10px;
+    width: 10px;
+}
+
+.attributeValueCreate::-webkit-scrollbar-thumb,
+.attributeValueEdit::-webkit-scrollbar-thumb,
+.attributeValue::-webkit-scrollbar-thumb {
+    cursor: default;
+
+    border-radius: 10px;
+    background: #5da2b0;
+}
+
+.attributeValueCreate::-webkit-scrollbar-thumb:hover,
+.attributeValueEdit::-webkit-scrollbar-thumb:hover,
+.attributeValue::-webkit-scrollbar-thumb:hover {
+    background: #6f969e;
+}
+
+
+.attributeValue::-webkit-scrollbar-track {
+    cursor: default;
+
+    border-radius: 10px;
+    background: #75CBDC;
+}
+
+.attributeValueCreate::-webkit-scrollbar-track,
+.attributeValueEdit::-webkit-scrollbar-track {
+    cursor: default;
+
+    border-radius: 10px;
+    background: #FFFFFF;
+}
+
+/* Keyframes for fadeInUp animation */ 
+@keyframes fadeInUp { 
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    } 
+
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    } 
+} 
+
+/* Animation for popup */ 
+.overlay-container.show { 
+    display: flex; 
+    opacity: 1; 
+}

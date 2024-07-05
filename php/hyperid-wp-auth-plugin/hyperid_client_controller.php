@@ -82,10 +82,13 @@ class hyperIdClientController
         }
     }
 
-    public static function getAuth($refreshToken = '') {
+    public static function getAuth($refreshToken = '') : ?Auth {
         if (!self::$auth) {
-            $auth = get_option(wp_get_current_user()->ID.'hid_auth');
-            if($auth) self::$auth = $auth;
+            $currentUser = wp_get_current_user();
+            if($currentUser->ID != 0) {
+                $auth = get_option($currentUser->ID.'hid_auth');
+                if($auth) self::$auth = $auth;
+            }
         }
         if (!self::$auth) {
             self::setAuth($refreshToken);
@@ -143,7 +146,7 @@ class hyperIdClientController
         }
     }
 
-    public static function getService($refreshToken = '') {
+    public static function getService($refreshToken = '') : ?Service {
         if (!self::$service) {
             $service = get_option('hid_service');
             if($service) self::$service = $service;
@@ -158,16 +161,16 @@ class hyperIdClientController
         return self::$service;
     }
 
-    public static function getRoleManager() {
+    public static function getRoleManager() : ?RoleManager {
         if (!self::$roleManager) {
             $apiUrl     = "";
             if(get_option('hid_roles_use_sa') === 'on') {
                 $service = self::getService(get_option('hid_sa_refresh_token'));
-                if(!$service) return;
+                if(!$service) return null;
                 $apiUrl = $service->getDiscoverConfiguration()->restApiTokenEndpoint;
             } else {
                 $auth = self::getAuth();
-                if(!$auth) return;
+                if(!$auth) return null;
                 $apiUrl = $auth->getDiscoverConfiguration()->restApiTokenEndpoint;
             }
             self::$roleManager = new RoleManager($apiUrl);
@@ -180,6 +183,7 @@ class hyperIdClientController
         add_action('init',          array($this, 'performeAction'));
         add_action('login_form',    array($this, 'loginWithHIDButton'));
         add_action('wp_logout',     array($this, 'logoutFromHID'));
+        add_action('the_post',      array($this, 'checkAccessToken'));
         register_uninstall_hook(__FILE__, 'deletePluginDB');
 
         if(!get_option('hid_login_types_to_show_web2')) update_option('hid_login_types_to_show_web2',   'on');
@@ -235,6 +239,14 @@ class hyperIdClientController
             }
             if ($_POST['action'] == 'hidUserDetach' && isset($_POST['roleId']) && isset($_POST['userId'])) {
                 RolesApi::get()->userDetachFromRole();
+                return;
+            }
+            if ($_POST['action'] == 'hidRoleAttributeReplace' && isset($_POST['roleId']) && isset($_POST['attributeKey']) && isset($_POST['attributeValue'])) {
+                RolesApi::get()->attributeReplace();
+                return;
+            }
+            if ($_POST['action'] == 'hidRoleAttributeDelete' && isset($_POST['roleId']) && isset($_POST['attributeKey'])) {
+                RolesApi::get()->attributeDelete();
                 return;
             }
         }
@@ -331,6 +343,7 @@ class hyperIdClientController
         } else {
             wp_redirect(home_url());
         }
+        update_user_meta(wp_get_current_user()->ID, 'hid_user_introspection_period',  time());
         update_option(wp_get_current_user()->ID.'hid_auth', self::$auth);
         exit;
     }
@@ -438,11 +451,35 @@ class hyperIdClientController
     }
 
     public static function refreshAuthTokens() {
+        self::getAuth(self::getAuthRefreshToken())->refreshTokens();
+        update_option(wp_get_current_user()->ID.'hid_auth', self::$auth);
+    }
+
+    public static function introspectAuthAccesToken() {
         try {
-            self::getAuth(self::getAuthRefreshToken())->refreshTokens();
+            $auth = self::getAuth(self::getAuthRefreshToken());
+            if(!$auth->getAccessToken()) return;
+            $introspect = $auth->introspectAccessToken();
             update_option(wp_get_current_user()->ID.'hid_auth', self::$auth);
+            return $introspect;
         } catch(Exception $e) {
-        } catch(Error $e) {
+            if($e instanceof AccessTokenExpiredException) {
+                try {
+                    self::refreshAuthTokens();
+                } catch(Exception $ex) {
+                    self::logoutWP();
+                }
+            }
+        }
+    }
+
+    public function checkAccessToken() {
+        $user = wp_get_current_user();
+        if($user->ID == 0) return;
+        $introspectPeriod = get_user_meta($user->ID, 'hid_user_introspection_period', true);
+        if(!$introspectPeriod || time() - $introspectPeriod > 60) {
+            self::introspectAuthAccesToken();
+            update_user_meta($user->ID, 'hid_user_introspection_period',  time());
         }
     }
 
@@ -527,6 +564,12 @@ class hyperIdClientController
             }
         } catch(Exception $e) {
         }
+    }
+
+    public static function logoutWP() {
+        wp_logout();
+        wp_redirect(home_url());
+        exit;
     }
 
     function isSiteAdmin() {

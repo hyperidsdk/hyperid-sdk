@@ -2,10 +2,12 @@
 
 class RolesApi
 {
-    const               USERS_PER_PAGE          = 10;
-    const               GET_ROLES_CACHE_NAME    = 'hid_project_roles';
+    const USERS_PER_PAGE        = 10;
+    const ATTRIBUTES_PER_PAGE   = 10;
+    const GET_ROLES_CACHE_NAME  = 'hid_project_roles';
 
-    protected static $manager       = NULL;
+    protected static ?RolesApi $manager = NULL;
+
     protected static $accessToken   = NULL;
     protected static $isService     = NULL;
 
@@ -121,8 +123,6 @@ class RolesApi
         }
         $data = array('operation' => 'userAttach', 'response' => $response);
         update_option('hid_role_operation_result', $data);
-
-        if(hyperIdClientController::getAuth()->getUserInfo()->user_email == $userEmail) hyperIdClientController::refreshAuthTokens();
     }
 
     function userDetachFromRole() {
@@ -142,8 +142,6 @@ class RolesApi
         $response   = $roleManager->userRoleDetach(self::$accessToken, $hidUserId, $roleId, self::$isService);
         $data = array('operation' => 'userDetach', 'response' => $response);
         update_option('hid_role_operation_result', $data);
-
-        if(hyperIdClientController::getAuth()->getUserInfo()->user_id == $hidUserId) hyperIdClientController::refreshAuthTokens();
     }
 
     function usersByRoleGet(string $roleId, int $pageNumber) {
@@ -153,12 +151,89 @@ class RolesApi
                 printf('<div class="%1$s" style="margin-top:2rem; width:%2$s;"><p>%3$s</p></div>', esc_attr('errorNote'), $width, 'Need admin authorization');
             } else {
                 $width = '70%';
-                printf('<div class="%1$s" style="margin-top:2rem; width:%2$s;"><p>%3$s</p></div>', esc_attr('errorNote'), $width, 'Need admin authorization');
+                printf('<div class="%1$s" style="margin-top:2rem; width:%2$s;"><p>%3$s</p></div>', esc_attr('errorNote'), $width, 'Service Account config not valid');
             }
             return;
         }
         $roleManager = hyperIdClientController::getRoleManager();
         if(!$roleManager) return;
         return $roleManager->usersByRoleGet(self::$accessToken, $roleId, $pageNumber*self::USERS_PER_PAGE, self::USERS_PER_PAGE, self::$isService);
+    }
+
+    function attributeReplace() {
+        if(empty(self::$accessToken)) {
+            if(get_option('hid_roles_use_sa') !== 'on') {
+                $width = '70%';
+                printf('<div class="%1$s" style="margin-top:2rem; width:%2$s;"><p>%3$s</p></div>', esc_attr('errorNote'), $width, 'Need admin authorization');
+            } else {
+                $width = '70%';
+                printf('<div class="%1$s" style="margin-top:2rem; width:%2$s;"><p>%3$s</p></div>', esc_attr('errorNote'), $width, 'Service Account config not valid');
+            }
+            return;
+        }
+
+        $roleId = $_POST['roleId'];
+        $key    = $_POST['attributeKey'];
+        $value  = $_POST['attributeValue'];
+
+        $roleManager = hyperIdClientController::getRoleManager();
+        if(!$roleManager) return;
+        $response = $roleManager->roleAttributeReplace(self::$accessToken, $roleId, $key, $value, self::$isService);
+        $data = array('operation' => 'attributeReplace', 'response' => $response);
+        update_option('hid_role_operation_result', $data);
+    }
+
+    function attributeGet(string $roleId, string $key) {
+        if(empty(self::$accessToken)) {
+            if(get_option('hid_roles_use_sa') !== 'on') {
+                $width = '70%';
+                printf('<div class="%1$s" style="margin-top:2rem; width:%2$s;"><p>%3$s</p></div>', esc_attr('errorNote'), $width, 'Need admin authorization');
+            } else {
+                $width = '70%';
+                printf('<div class="%1$s" style="margin-top:2rem; width:%2$s;"><p>%3$s</p></div>', esc_attr('errorNote'), $width, 'Service Account config not valid');
+            }
+            return;
+        }
+        $roleManager = hyperIdClientController::getRoleManager();
+        if(!$roleManager) return;
+        return $roleManager->roleAttributeGet(self::$accessToken, $roleId, $key, self::$isService);
+    }
+
+    function attributesGet(string $roleId, string $pageNumber) {
+        if(empty(self::$accessToken)) {
+            if(get_option('hid_roles_use_sa') !== 'on') {
+                $width = '70%';
+                printf('<div class="%1$s" style="margin-top:2rem; width:%2$s;"><p>%3$s</p></div>', esc_attr('errorNote'), $width, 'Need admin authorization');
+            } else {
+                $width = '70%';
+                printf('<div class="%1$s" style="margin-top:2rem; width:%2$s;"><p>%3$s</p></div>', esc_attr('errorNote'), $width, 'Service Account config not valid');
+            }
+            return;
+        }
+        $roleManager = hyperIdClientController::getRoleManager();
+        if(!$roleManager) return;
+        return $roleManager->roleAttributesGet(self::$accessToken, $roleId, $pageNumber*self::ATTRIBUTES_PER_PAGE, self::ATTRIBUTES_PER_PAGE, self::$isService);
+    }
+
+    function attributeDelete() {
+        if(empty(self::$accessToken)) {
+            if(get_option('hid_roles_use_sa') !== 'on') {
+                $width = '70%';
+                printf('<div class="%1$s" style="margin-top:2rem; width:%2$s;"><p>%3$s</p></div>', esc_attr('errorNote'), $width, 'Need admin authorization');
+            } else {
+                $width = '70%';
+                printf('<div class="%1$s" style="margin-top:2rem; width:%2$s;"><p>%3$s</p></div>', esc_attr('errorNote'), $width, 'Service Account config not valid');
+            }
+            return;
+        }
+
+        $roleId = $_POST['roleId'];
+        $key    = $_POST['attributeKey'];
+
+        $roleManager = hyperIdClientController::getRoleManager();
+        if(!$roleManager) return;
+        $response = $roleManager->roleAttributeDelete(self::$accessToken, $roleId, $key, self::$isService);
+        $data = array('operation' => 'attributeDelete', 'response' => $response);
+        update_option('hid_role_operation_result', $data);
     }
 }

@@ -62,7 +62,7 @@ function hidUserRoleManagment() {
                         <input type='hidden' name='roleId'      value='<?php echo $roleId ?>' />
                         <input type='hidden' name='roleName'    value='<?php echo $roleName ?>' />
                         <input type='hidden' name='pageNumber'  value='<?php echo ($pageNumber-1) ?>' />
-                        <button type='submit'><</button>
+                        <button type='submit' class='button-custom pageButton'><</button>
                     </form>
                 <?php } ?>
                 <p style='display: inline-block;'><?php echo $pageNumber ?></p>
@@ -73,7 +73,7 @@ function hidUserRoleManagment() {
                         <input type='hidden' name='roleId'      value='<?php echo $roleId ?>' />
                         <input type='hidden' name='roleName'    value='<?php echo $roleName ?>' />
                         <input type='hidden' name='pageNumber'  value='<?php echo ($pageNumber+1) ?>' />
-                        <button type='submit'>></button>
+                        <button type='submit' class='button-custom pageButton'>></button>
                     </form>
                 <?php } ?>
             </div>
